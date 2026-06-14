@@ -31,7 +31,7 @@ export function DeleteWorkerDialog({ workerId, workerName }: DeleteWorkerDialogP
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild={false} render={
+      <DialogTrigger render={
         <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50">
           <Trash2 className="w-4 h-4" />
         </Button>

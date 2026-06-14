@@ -2,6 +2,7 @@ import { TopAppBar } from "@/components/TopAppBar";
 import { RevenueSummaryCards } from "@/components/revenue/RevenueSummaryCards";
 import { RevenueTrendChart } from "@/components/revenue/RevenueTrendChart";
 import { RevenueBreakdownCharts } from "@/components/revenue/RevenueBreakdownCharts";
+import { getSettings } from "@/actions/settings";
 import {
   getRevenueSummary,
   getDailyRevenue,
@@ -16,10 +17,11 @@ export default async function RevenuePage() {
   const dailyData = await getDailyRevenue();
   const paymentData = await getRevenueByPaymentMethod();
   const categoryData = await getRevenueByCategory();
+  const settings = await getSettings();
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-y-auto">
-      <TopAppBar storeName="Stockholm Flagship" />
+      <TopAppBar storeName={settings.storeName} />
       <div className="flex-1 p-container-padding max-w-7xl mx-auto w-full">
         <div className="flex items-end justify-between mb-8">
           <div>

@@ -4,11 +4,13 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { InventoryAlerts } from "@/components/dashboard/InventoryAlerts";
 import { RecentBills } from "@/components/dashboard/RecentBills";
 import { WorkerAttendance } from "@/components/dashboard/WorkerAttendance";
+import { getSettings } from "@/actions/settings";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const settings = await getSettings();
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-y-auto">
-      <TopAppBar storeName="Stockholm Flagship" />
+      <TopAppBar storeName={settings.storeName} />
       <div className="flex-1 p-container-padding flex flex-col gap-gutter">
         {/* Page Header */}
         <section className="flex flex-col md:flex-row justify-between items-start md:items-center">

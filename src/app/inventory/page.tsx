@@ -4,13 +4,15 @@ import { inventory } from "@/db/schema";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { CreateProductDialog } from "@/components/inventory/CreateProductDialog";
 import { desc } from "drizzle-orm";
+import { getSettings } from "@/actions/settings";
 
 export default async function InventoryPage() {
   const products = await db.select().from(inventory).orderBy(desc(inventory.createdAt));
+  const settings = await getSettings();
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-y-auto">
-      <TopAppBar storeName="Stockholm Flagship" />
+      <TopAppBar storeName={settings.storeName} />
       <div className="flex-1 p-container-padding">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>

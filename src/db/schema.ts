@@ -55,6 +55,16 @@ export const attendance = pgTable("attendance", {
   status: varchar("status", { length: 50 }).notNull(), // Present, Absent, Leave
 });
 
+export const settings = pgTable("settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeName: varchar("store_name", { length: 255 }).notNull().default("My Store"),
+  storeAddress: text("store_address"),
+  storePhone: varchar("store_phone", { length: 50 }),
+  taxRate: decimal("tax_rate", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  invoicePrefix: varchar("invoice_prefix", { length: 20 }).notNull().default("INV-"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relationships
 export const billsRelations = relations(bills, ({ many }) => ({
   items: many(billItems),

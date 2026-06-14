@@ -48,7 +48,7 @@ export function RevenueTrendChart({ data }: { data: DailyRevenue[] }) {
             <Tooltip 
               contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827' }}
               itemStyle={{ color: '#000000', fontWeight: 'bold' }}
-              formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+              formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
             />
             <Line 
               type="monotone" 

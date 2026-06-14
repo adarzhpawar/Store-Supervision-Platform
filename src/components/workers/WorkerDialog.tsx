@@ -11,7 +11,7 @@ import { createWorker, updateWorker } from "@/actions/workers";
 interface WorkerDialogProps {
   worker?: any;
   onSuccess?: () => void;
-  trigger?: React.ReactNode;
+  trigger?: React.ReactElement;
 }
 
 export function WorkerDialog({ worker, onSuccess, trigger }: WorkerDialogProps) {
@@ -53,7 +53,7 @@ export function WorkerDialog({ worker, onSuccess, trigger }: WorkerDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild={false} render={trigger ? trigger : (
+      <DialogTrigger render={trigger ? trigger : (
         <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
           {worker ? <Edit className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
           {worker ? "Edit Worker" : "Add Worker"}

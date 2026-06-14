@@ -3,9 +3,11 @@ import { POSInterface } from "@/components/billing/POSInterface";
 import { db } from "@/db";
 import { inventory } from "@/db/schema";
 import { asc } from "drizzle-orm";
+import { getSettings } from "@/actions/settings";
 
 export default async function BillingPage() {
   const productsData = await db.select().from(inventory).orderBy(asc(inventory.name));
+  const settings = await getSettings();
   
   const products = productsData.map(p => ({
     id: p.id,
@@ -17,7 +19,7 @@ export default async function BillingPage() {
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-hidden">
-      <TopAppBar storeName="Stockholm Flagship" />
+      <TopAppBar storeName={settings.storeName} />
       <div className="flex-1 p-container-padding flex flex-col h-full overflow-hidden">
         <div className="mb-4 shrink-0">
           <h1 className="font-display text-display-lg text-on-surface leading-none tracking-tight">

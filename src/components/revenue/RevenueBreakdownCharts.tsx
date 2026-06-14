@@ -56,7 +56,7 @@ export function RevenueBreakdownCharts({
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                 />
                 <Legend verticalAlign="bottom" height={36} />
@@ -78,7 +78,7 @@ export function RevenueBreakdownCharts({
                 <XAxis type="number" tickFormatter={(value) => `$${value}`} tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
                 <YAxis dataKey="category" type="category" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} width={100} />
                 <Tooltip 
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                   cursor={{fill: 'transparent'}}
                 />
