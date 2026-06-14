@@ -43,12 +43,13 @@ export function RevenueTrendChart({ data }: { data: DailyRevenue[] }) {
               axisLine={false} 
               tickLine={false} 
               tick={{ fontSize: 12, fill: "#6b7280" }} 
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => `₹${value}`}
             />
             <Tooltip 
               contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827' }}
               itemStyle={{ color: '#000000', fontWeight: 'bold' }}
-              formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+              /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+              formatter={(value: any) => [`₹${Number(value || 0).toFixed(2)}`, 'Revenue']}
             />
             <Line 
               type="monotone" 

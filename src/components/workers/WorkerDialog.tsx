@@ -9,7 +9,7 @@ import { Plus, Edit } from "lucide-react";
 import { createWorker, updateWorker } from "@/actions/workers";
 
 interface WorkerDialogProps {
-  worker?: any;
+  worker?: { id: string; name: string; phone?: string | null; email?: string | null; role?: string | null; salary?: string | null; status: string | null; };
   onSuccess?: () => void;
   trigger?: React.ReactElement;
 }
@@ -74,21 +74,21 @@ export function WorkerDialog({ worker, onSuccess, trigger }: WorkerDialogProps) 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" defaultValue={worker?.phone} />
+              <Input id="phone" name="phone" defaultValue={worker?.phone || ""} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" defaultValue={worker?.email} />
+              <Input id="email" name="email" type="email" defaultValue={worker?.email || ""} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Input id="role" name="role" defaultValue={worker?.role} />
+              <Input id="role" name="role" defaultValue={worker?.role || ""} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salary">Salary ($)</Label>
-              <Input id="salary" name="salary" type="number" step="0.01" defaultValue={worker?.salary} />
+              <Label htmlFor="salary">Salary (₹)</Label>
+              <Input id="salary" name="salary" type="number" step="0.01" defaultValue={worker?.salary || ""} />
             </div>
           </div>
           {worker && (

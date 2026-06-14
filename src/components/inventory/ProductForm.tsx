@@ -15,9 +15,11 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
+export type FormState = { message?: string | null; errors?: Record<string, string[]>; success?: boolean; };
+
 interface ProductFormProps {
-  action: (state: any, formData: FormData) => Promise<any>;
-  initialData?: any;
+  action: (state: FormState, formData: FormData) => Promise<FormState>;
+  initialData?: { sku: string; barcode?: string | null; name: string; category?: string | null; price: string; costPrice?: string | null; stock: number; minStock: number; };
   onSuccess?: () => void;
 }
 
@@ -28,7 +30,7 @@ const initialState = {
 };
 
 export function ProductForm({ action, initialData, onSuccess }: ProductFormProps) {
-  const [state, formAction, pending] = useActionState(action, initialState);
+  const [state, formAction] = useActionState(action, initialState);
 
   // Close dialog on success
   useEffect(() => {
@@ -49,7 +51,7 @@ export function ProductForm({ action, initialData, onSuccess }: ProductFormProps
         </div>
         <div className="space-y-2">
           <Label htmlFor="barcode">Barcode</Label>
-          <Input id="barcode" name="barcode" defaultValue={initialData?.barcode} />
+          <Input id="barcode" name="barcode" defaultValue={initialData?.barcode || ""} />
         </div>
       </div>
 
@@ -63,20 +65,20 @@ export function ProductForm({ action, initialData, onSuccess }: ProductFormProps
 
       <div className="space-y-2">
         <Label htmlFor="category">Category</Label>
-        <Input id="category" name="category" defaultValue={initialData?.category} />
+        <Input id="category" name="category" defaultValue={initialData?.category || ""} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="price">Price ($)</Label>
+          <Label htmlFor="price">Price (₹)</Label>
           <Input id="price" name="price" type="number" step="0.01" defaultValue={initialData?.price} required />
           {state.errors?.price && (
             <p className="text-sm text-red-500">{state.errors.price[0]}</p>
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="costPrice">Cost Price ($)</Label>
-          <Input id="costPrice" name="costPrice" type="number" step="0.01" defaultValue={initialData?.costPrice} />
+          <Label htmlFor="costPrice">Cost Price (₹)</Label>
+          <Input id="costPrice" name="costPrice" type="number" step="0.01" defaultValue={initialData?.costPrice || ""} />
         </div>
       </div>
 

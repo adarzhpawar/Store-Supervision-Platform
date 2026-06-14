@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 
 interface WorkersClientProps {
-  workers: any[];
+  workers: { id: string; name: string; phone?: string | null; email?: string | null; role?: string | null; salary?: string | null; status: string | null; }[];
 }
 
 export function WorkersClient({ workers }: WorkersClientProps) {
@@ -20,7 +20,8 @@ export function WorkersClient({ workers }: WorkersClientProps) {
   const filteredWorkers = workers.filter(worker => {
     const matchesSearch = worker.name.toLowerCase().includes(search.toLowerCase()) || 
                           (worker.role || "").toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = filterStatus === "all" ? true : worker.status === filterStatus;
+    const workerStatus = worker.status || "active";
+    const matchesStatus = filterStatus === "all" ? true : workerStatus === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -88,11 +89,11 @@ export function WorkersClient({ workers }: WorkersClientProps) {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        worker.status === "active" 
+                        (worker.status || "active") === "active" 
                           ? "bg-green-100 text-green-800" 
                           : "bg-gray-100 text-gray-800"
                       }`}>
-                        {worker.status.charAt(0).toUpperCase() + worker.status.slice(1)}
+                        {(worker.status || "active").charAt(0).toUpperCase() + (worker.status || "active").slice(1)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right flex items-center justify-end gap-2">

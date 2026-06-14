@@ -161,10 +161,10 @@ export const InvoicePDF = ({ data }: { data: InvoiceData }) => (
             <Text style={[styles.col1, styles.tableCell]}>{item.name}</Text>
             <Text style={[styles.col2, styles.tableCell]}>{item.quantity}</Text>
             <Text style={[styles.col3, styles.tableCell]}>
-              ${item.unitPrice.toFixed(2)}
+              ₹{item.unitPrice.toFixed(2)}
             </Text>
             <Text style={[styles.col4, styles.tableCell]}>
-              ${item.totalPrice.toFixed(2)}
+              ₹{item.totalPrice.toFixed(2)}
             </Text>
           </View>
         ))}
@@ -173,21 +173,21 @@ export const InvoicePDF = ({ data }: { data: InvoiceData }) => (
       <View style={styles.totalsContainer}>
         <View style={styles.totalRow}>
           <Text style={styles.text}>Subtotal:</Text>
-          <Text style={styles.text}>${data.subtotal.toFixed(2)}</Text>
+          <Text style={styles.text}>₹{data.subtotal.toFixed(2)}</Text>
         </View>
         {data.discount > 0 && (
           <View style={styles.totalRow}>
             <Text style={styles.text}>Discount:</Text>
-            <Text style={styles.text}>-${data.discount.toFixed(2)}</Text>
+            <Text style={styles.text}>-₹{data.discount.toFixed(2)}</Text>
           </View>
         )}
         <View style={styles.totalRow}>
           <Text style={styles.text}>Tax:</Text>
-          <Text style={styles.text}>${data.tax.toFixed(2)}</Text>
+          <Text style={styles.text}>₹{data.tax.toFixed(2)}</Text>
         </View>
         <View style={styles.grandTotal}>
           <Text style={styles.grandTotalText}>Total:</Text>
-          <Text style={styles.grandTotalText}>${data.total.toFixed(2)}</Text>
+          <Text style={styles.grandTotalText}>₹{data.total.toFixed(2)}</Text>
         </View>
       </View>
 

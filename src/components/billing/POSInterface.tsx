@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useActionState, useEffect } from "react";
-import { createBill } from "@/actions/billing";
+import { createBill, CreateBillState, BillData } from "@/actions/billing";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Minus, Trash2, Receipt, FileText } from "lucide-react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink, usePDF } from "@react-pdf/renderer";
 import { InvoicePDF } from "./InvoicePDF";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
@@ -23,10 +23,27 @@ type CartItem = Product & {
   quantity: number;
 };
 
-const initialState = {
+const initialState: CreateBillState = {
   success: false,
   message: "",
 };
+
+function AutoDownloadPDF({ data, fileName }: { data: BillData; fileName: string }) {
+  const [instance] = usePDF({ document: <InvoicePDF data={data} /> });
+
+  useEffect(() => {
+    if (instance.url && !instance.loading && !instance.error) {
+      const link = document.createElement("a");
+      link.href = instance.url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }, [instance.url, instance.loading, instance.error, fileName]);
+
+  return null;
+}
 
 export function POSInterface({ products }: { products: Product[] }) {
   const [search, setSearch] = useState("");
@@ -35,10 +52,19 @@ export function POSInterface({ products }: { products: Product[] }) {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [discount, setDiscount] = useState<number>(0);
   const [tax, setTax] = useState<number>(0);
-  const [notes, setNotes] = useState("");
 
-  const [state, formAction, pending] = useActionState(createBill, initialState);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [state, formAction, pending] = useActionState(async (prevState: CreateBillState, formData: FormData) => {
+    const res = await createBill(prevState, formData);
+    if (res.success) {
+      setShowReceipt(true);
+      setCart([]);
+      setCustomerName("");
+      setDiscount(0);
+      setTax(0);
+    }
+    return res;
+  }, initialState);
 
   // Filter products based on search
   const filteredProducts = products.filter(
@@ -88,23 +114,11 @@ export function POSInterface({ products }: { products: Product[] }) {
   );
   const total = subtotal + tax - discount;
 
-  // Handle successful checkout
-  useEffect(() => {
-    if (state.success && state.billData) {
-      setShowReceipt(true);
-      // Reset cart and form
-      setCart([]);
-      setCustomerName("");
-      setDiscount(0);
-      setTax(0);
-      setNotes("");
-    }
-  }, [state]);
-
   const itemsForForm = cart.map((item) => ({
     productId: item.id,
     quantity: item.quantity,
     unitPrice: parseFloat(item.price),
+    totalPrice: parseFloat(item.price) * item.quantity,
     name: item.name // Added for the pdf payload mapping indirectly
   }));
 
@@ -147,7 +161,7 @@ export function POSInterface({ products }: { products: Product[] }) {
           ))}
           {filteredProducts.length === 0 && (
             <div className="col-span-full py-10 text-center text-secondary">
-              No products found matching "{search}"
+              No products found matching &quot;{search}&quot;
             </div>
           )}
         </div>
@@ -206,7 +220,9 @@ export function POSInterface({ products }: { products: Product[] }) {
         </div>
 
         {/* Checkout Form */}
-        <form action={formAction} className="border-t border-border p-4 bg-background space-y-4">
+        <form action={(formData) => {
+          formAction(formData);
+        }} className="border-t border-border p-4 bg-background space-y-4">
           <input type="hidden" name="items" value={JSON.stringify(itemsForForm)} />
           <input type="hidden" name="subtotal" value={subtotal} />
           <input type="hidden" name="total" value={total > 0 ? total : 0} />
@@ -237,7 +253,7 @@ export function POSInterface({ products }: { products: Product[] }) {
               </select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="discount" className="text-xs">Discount ($)</Label>
+              <Label htmlFor="discount" className="text-xs">Discount (₹)</Label>
               <Input
                 id="discount"
                 name="discount"
@@ -250,7 +266,7 @@ export function POSInterface({ products }: { products: Product[] }) {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="tax" className="text-xs">Tax ($)</Label>
+              <Label htmlFor="tax" className="text-xs">Tax (₹)</Label>
               <Input
                 id="tax"
                 name="tax"
@@ -267,23 +283,23 @@ export function POSInterface({ products }: { products: Product[] }) {
           <div className="space-y-2 pt-2 border-t border-border">
             <div className="flex justify-between text-sm">
               <span className="text-secondary">Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>₹{subtotal.toFixed(2)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-sm text-green-600">
                 <span>Discount</span>
-                <span>-${discount.toFixed(2)}</span>
+                <span>-₹{discount.toFixed(2)}</span>
               </div>
             )}
             {tax > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-secondary">Tax</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>₹{tax.toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
               <span>Total</span>
-              <span className="text-primary">${Math.max(0, total).toFixed(2)}</span>
+              <span className="text-primary">₹{Math.max(0, total).toFixed(2)}</span>
             </div>
           </div>
 
@@ -298,7 +314,7 @@ export function POSInterface({ products }: { products: Product[] }) {
             className="w-full font-bold text-base h-12"
             disabled={cart.length === 0 || pending}
           >
-            {pending ? "Processing..." : `Charge $${Math.max(0, total).toFixed(2)}`}
+            {pending ? "Processing..." : `Charge ₹${Math.max(0, total).toFixed(2)}`}
           </Button>
         </form>
       </div>
@@ -324,16 +340,19 @@ export function POSInterface({ products }: { products: Product[] }) {
             </p>
           </div>
           <DialogFooter className="flex-col sm:flex-col gap-2">
-            {state.billData && (
-              <PDFDownloadLink
-                document={<InvoicePDF data={state.billData} />}
-                fileName={`${state.invoiceNumber}.pdf`}
-                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-colors"
-              >
-                {({ loading }) =>
-                  loading ? "Preparing PDF..." : "Download PDF Receipt"
-                }
-              </PDFDownloadLink>
+            {!!state.billData && (
+              <>
+                <AutoDownloadPDF data={state.billData} fileName={`${state.invoiceNumber}.pdf`} />
+                <PDFDownloadLink
+                  document={<InvoicePDF data={state.billData} />}
+                  fileName={`${state.invoiceNumber}.pdf`}
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-colors"
+                >
+                  {({ loading }) =>
+                    loading ? "Preparing PDF..." : "Download PDF Receipt"
+                  }
+                </PDFDownloadLink>
+              </>
             )}
             <DialogClose render={<Button variant="outline" className="w-full" />}>
               New Transaction

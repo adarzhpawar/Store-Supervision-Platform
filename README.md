@@ -25,31 +25,54 @@ Retail Store Owners, Boutique Managers, Electronics Shops, Clothing Stores, and 
 
 ## Getting Started
 
-First, install dependencies:
+To run this project on your local device, follow these steps:
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-Set up your database and environment variables in `.env`:
+### 2. Set up local PostgreSQL Database
 
-```env
-DATABASE_URL="your-postgres-connection-string"
+StoreSync uses PostgreSQL. You can run it locally using Docker or a local installation.
+
+**Option A: Using Docker (Recommended)**
+```bash
+docker run --name storesync-db -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=storesync -p 5432:5432 -d postgres
 ```
 
-Push the database schema:
+**Option B: Local PostgreSQL Installation**
+1. Install PostgreSQL on your machine.
+2. Create a new database named `storesync`.
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the root of your project and add your database connection string:
+
+```env
+# If using the Docker command above:
+DATABASE_URL="postgresql://postgres:mysecretpassword@localhost:5432/storesync"
+
+# Or your custom local postgres string:
+# DATABASE_URL="postgresql://[user]:[password]@localhost:5432/[database_name]"
+```
+
+### 4. Push Database Schema
+
+Use Drizzle to push the schema to your local database:
 
 ```bash
 npm run db:push
 ```
 
-Run the development server:
+### 5. Run the development server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the app.
 
 ## Architecture
 

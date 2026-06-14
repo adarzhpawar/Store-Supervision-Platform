@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ProductForm } from "./ProductForm";
 import { updateProduct } from "@/actions/inventory";
 
 interface EditProductDialogProps {
-  product: any;
+  product: { id: string; sku: string; barcode?: string | null; name: string; category?: string | null; price: string; costPrice?: string | null; stock: number; minStock: number; };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

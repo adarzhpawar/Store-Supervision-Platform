@@ -56,7 +56,8 @@ export function RevenueBreakdownCharts({
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+                  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                  formatter={(value: any) => [`₹${Number(value || 0).toFixed(2)}`, 'Revenue']}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                 />
                 <Legend verticalAlign="bottom" height={36} />
@@ -75,10 +76,11 @@ export function RevenueBreakdownCharts({
              <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" opacity={0.5} />
-                <XAxis type="number" tickFormatter={(value) => `$${value}`} tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
+                <XAxis type="number" tickFormatter={(value) => `₹${value}`} tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
                 <YAxis dataKey="category" type="category" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} width={100} />
                 <Tooltip 
-                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+                  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                  formatter={(value: any) => [`₹${Number(value || 0).toFixed(2)}`, 'Revenue']}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                   cursor={{fill: 'transparent'}}
                 />

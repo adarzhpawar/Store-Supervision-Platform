@@ -1,19 +1,36 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, Home } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { SidebarContent } from "@/components/Sidebar";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export type TopAppBarProps = {
   storeName?: string;
 };
 
 export function TopAppBar({ storeName = "Main Store" }: TopAppBarProps) {
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedTime = currentTime
+    ? currentTime.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+    : "";
 
   return (
     <header className="bg-surface/80 backdrop-blur-md flex justify-between items-center h-20 px-margin-md md:px-margin-lg border-b border-outline/10 sticky top-0 z-10">
@@ -39,15 +56,15 @@ export function TopAppBar({ storeName = "Main Store" }: TopAppBarProps) {
       </div>
       <div className="flex items-center gap-4 md:gap-6">
         <span className="font-mono text-label-mono uppercase tracking-widest text-secondary hidden sm:inline">
-          {currentDate}
+          {formattedTime}
         </span>
-        <div className="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline">
-          <img
-            alt="Admin Avatar"
-            className="w-full h-full object-cover"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuArNovtbbfZtGlvoFzfF6dLnqSF2krcjiEF-p4QkQoyzDS1oMLFX2jjzhDY3tFAVdsKwsl6GQe2tMwVUiUE8At1ueP7zMErRdD1sQa5fEt-CvPnSYT199v9Aa1WBXdfb9GuJB6GVU9I2bUi6oVI4T7i_ZEoDF_bhedOAUU8jNa2lxngqNJ-YXh-djdZue8tyKunrxwQuUwGzNtHNoeumLGNnsGZCr0xn7Kz6h4JLkHPG1QvYh3izy5JrA"
-          />
-        </div>
+        <Link 
+          href="/" 
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high border border-outline hover:border-primary text-secondary hover:text-primary transition-colors"
+          title="Return to Landing Page"
+        >
+          <Home size={18} />
+        </Link>
       </div>
     </header>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -9,28 +9,60 @@ import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { EditProductDialog } from "./EditProductDialog";
 import { DeleteProductDialog } from "./DeleteProductDialog";
 
+type ProductType = { id: string; name: string; sku: string; barcode?: string | null; category?: string | null; price: string; costPrice?: string | null; stock: number; minStock: number; };
+
 interface InventoryTableProps {
-  products: any[];
+  products: ProductType[];
 }
 
 export function InventoryTable({ products }: InventoryTableProps) {
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  const handleEdit = (product: any) => {
+  const categories = useMemo(() => {
+    const cats = new Set(products.map(p => p.category).filter(Boolean) as string[]);
+    return ["All", ...Array.from(cats).sort()];
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    if (selectedCategory === "All") return products;
+    return products.filter(p => p.category === selectedCategory);
+  }, [products, selectedCategory]);
+
+  const handleEdit = (product: ProductType) => {
     setSelectedProduct(product);
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (product: any) => {
+  const handleDelete = (product: ProductType) => {
     setSelectedProduct(product);
     setIsDeleteDialogOpen(true);
   };
 
   return (
-    <div className="rounded-md border bg-surface mt-6 overflow-hidden">
-      <div className="overflow-x-auto">
+    <div className="flex flex-col gap-4 mt-6">
+      <div className="flex items-center gap-3">
+        <label htmlFor="category-filter" className="text-sm font-medium text-foreground">
+          Category
+        </label>
+        <select
+          id="category-filter"
+          className="h-9 w-[180px] rounded-md border border-input bg-surface px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      <div className="rounded-md border bg-surface overflow-hidden">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -44,19 +76,19 @@ export function InventoryTable({ products }: InventoryTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                  No products found. Add a product to get started.
+                  No products found.
                 </TableCell>
               </TableRow>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.sku}</TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.category || "—"}</TableCell>
-                  <TableCell className="text-right">${Number(product.price).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">₹{Number(product.price).toFixed(2)}</TableCell>
                   <TableCell className="text-right">{product.stock}</TableCell>
                   <TableCell className="text-right">
                     {product.stock <= product.minStock ? (
@@ -92,6 +124,7 @@ export function InventoryTable({ products }: InventoryTableProps) {
             )}
           </TableBody>
         </Table>
+      </div>
       </div>
 
       {selectedProduct && (

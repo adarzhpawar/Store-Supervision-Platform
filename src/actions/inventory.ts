@@ -65,9 +65,9 @@ export async function createProduct(prevState: State, formData: FormData): Promi
       minStock,
       barcode: barcode || null,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If it's a unique constraint violation on SKU
-    if (error.code === '23505') {
+    if (typeof error === "object" && error !== null && (error as { code?: string }).code === '23505') {
        return {
         message: "A product with this SKU already exists.",
         success: false,
@@ -120,8 +120,8 @@ export async function updateProduct(id: string, prevState: State, formData: Form
         updatedAt: new Date(),
       })
       .where(eq(inventory.id, id));
-  } catch (error: any) {
-    if (error.code === '23505') {
+  } catch (error: unknown) {
+    if (typeof error === "object" && error !== null && (error as { code?: string }).code === '23505') {
        return {
         message: "A product with this SKU already exists.",
         success: false,
@@ -142,7 +142,7 @@ export async function deleteProduct(id: string) {
     await db.delete(inventory).where(eq(inventory.id, id));
     revalidatePath("/inventory");
     return { message: "Deleted Product", success: true };
-  } catch (error) {
+  } catch {
     return { message: "Database Error: Failed to Delete Product.", success: false };
   }
 }

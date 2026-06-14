@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { bills, billItems, inventory } from "@/db/schema";
-import { sql, sum, count, desc, eq, gte } from "drizzle-orm";
+import { sql, sum, count, eq, gte } from "drizzle-orm";
 
 export async function getRevenueSummary() {
   const thirtyDaysAgo = new Date();

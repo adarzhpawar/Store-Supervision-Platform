@@ -10,6 +10,8 @@ const billItemSchema = z.object({
   productId: z.string().uuid(),
   quantity: z.number().int().positive(),
   unitPrice: z.number().positive(),
+  totalPrice: z.number().nonnegative().optional(),
+  name: z.string().optional(),
 });
 
 const createBillSchema = z.object({
@@ -23,13 +25,25 @@ const createBillSchema = z.object({
   items: z.array(billItemSchema).min(1, "At least one item is required"),
 });
 
+export type BillData = {
+  invoiceNumber: string;
+  date: string;
+  customerName: string;
+  items: { productId: string; quantity: number; unitPrice: number; totalPrice: number; name: string }[];
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  paymentMethod: string;
+};
+
 export type CreateBillState = {
   success?: boolean;
   message?: string;
   errors?: Record<string, string[]>;
   invoiceNumber?: string;
   billId?: string;
-  billData?: any; // To pass back to client for PDF generation
+  billData?: BillData; // To pass back to client for PDF generation
 };
 
 export async function createBill(
@@ -41,13 +55,13 @@ export async function createBill(
     const items = JSON.parse(rawItems || "[]");
 
     const validatedData = createBillSchema.safeParse({
-      customerName: formData.get("customerName") as string,
-      subtotal: parseFloat(formData.get("subtotal") as string),
-      tax: parseFloat(formData.get("tax") as string),
-      discount: parseFloat(formData.get("discount") as string),
-      total: parseFloat(formData.get("total") as string),
-      paymentMethod: formData.get("paymentMethod") as string,
-      notes: formData.get("notes") as string,
+      customerName: formData.get("customerName")?.toString() || undefined,
+      subtotal: parseFloat(formData.get("subtotal") as string) || 0,
+      tax: parseFloat(formData.get("tax") as string) || 0,
+      discount: parseFloat(formData.get("discount") as string) || 0,
+      total: parseFloat(formData.get("total") as string) || 0,
+      paymentMethod: formData.get("paymentMethod")?.toString() || "",
+      notes: formData.get("notes")?.toString() || undefined,
       items: items,
     });
 
@@ -103,13 +117,18 @@ export async function createBill(
 
     revalidatePath("/inventory");
     revalidatePath("/billing");
+    revalidatePath("/dashboard");
     
     // For PDF generation we want to return the structured data so the client has everything
     const billDataForPdf = {
       invoiceNumber,
       date: new Date().toISOString(),
       customerName: data.customerName || "Walk-in Customer",
-      items: data.items, // Note: The client will map this with product names
+      items: data.items.map(item => ({
+        ...item,
+        totalPrice: item.totalPrice ?? (item.quantity * item.unitPrice),
+        name: item.name || "Unknown Product"
+      })),
       subtotal: data.subtotal,
       tax: data.tax,
       discount: data.discount,

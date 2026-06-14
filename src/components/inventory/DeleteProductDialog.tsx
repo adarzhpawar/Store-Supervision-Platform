@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { deleteProduct } from "@/actions/inventory";
 
 interface DeleteProductDialogProps {
-  product: any;
+  product: { id: string; name: string };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

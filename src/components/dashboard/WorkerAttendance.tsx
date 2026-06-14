@@ -1,31 +1,23 @@
-type WorkerAttendanceSummary = {
+type AttendanceSummary = {
   total: number;
   present: number;
   absent: number;
   onLeave: number;
 };
 
-const attendanceData: WorkerAttendanceSummary = {
-  total: 42,
-  present: 38,
-  absent: 3,
-  onLeave: 1,
-};
-
-type ActiveWorker = {
+type FeaturedWorker = {
   name: string;
-  role: string;
-  status: "Active" | "On Leave" | "Absent";
+  role: string | null;
+  status: string;
 };
 
-const recentWorkers: ActiveWorker[] = [
-  { name: "Aisha Patel", role: "Store Manager", status: "Active" },
-  { name: "Ben Jacobson", role: "Senior Cashier", status: "Active" },
-  { name: "Chloe Larsen", role: "Stock Clerk", status: "On Leave" },
-];
+type WorkerAttendanceProps = {
+  summary: AttendanceSummary;
+  workers: FeaturedWorker[];
+};
 
-export function WorkerAttendance() {
-  const presentRate = Math.round((attendanceData.present / attendanceData.total) * 100);
+export function WorkerAttendance({ summary, workers }: WorkerAttendanceProps) {
+  const presentRate = summary.total > 0 ? Math.round((summary.present / summary.total) * 100) : 0;
 
   return (
     <div className="premium-card flex flex-col gap-6">
@@ -40,7 +32,7 @@ export function WorkerAttendance() {
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-baseline">
           <span className="font-headline text-[36px] font-bold text-on-surface leading-none">
-            {attendanceData.present}/{attendanceData.total}
+            {summary.present}/{summary.total}
           </span>
           <span className="font-mono text-label-mono text-tertiary font-bold">
             {presentRate}% Present
@@ -57,10 +49,10 @@ export function WorkerAttendance() {
       {/* Attendance sub-counts */}
       <div className="grid grid-cols-2 gap-4 border-t border-b border-outline-variant/10 py-4 font-mono text-label-mono text-secondary">
         <div>
-          Absent: <span className="text-primary font-bold">{attendanceData.absent}</span>
+          Absent: <span className="text-primary font-bold">{summary.absent}</span>
         </div>
         <div>
-          On Leave: <span className="text-on-surface font-bold">{attendanceData.onLeave}</span>
+          On Leave: <span className="text-on-surface font-bold">{summary.onLeave}</span>
         </div>
       </div>
 
@@ -69,27 +61,31 @@ export function WorkerAttendance() {
         <span className="font-mono text-label-mono text-secondary uppercase tracking-wider text-[10px]">
           Featured Roster
         </span>
-        <div className="flex flex-col gap-2.5">
-          {recentWorkers.map((worker) => (
-            <div key={worker.name} className="flex items-center justify-between text-body-md">
-              <div>
-                <span className="font-medium text-on-surface">{worker.name}</span>
-                <span className="text-secondary text-[12px] block">{worker.role}</span>
+        {workers.length === 0 ? (
+          <p className="font-body text-body-md text-secondary">No workers registered yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2.5">
+            {workers.map((worker) => (
+              <div key={worker.name} className="flex items-center justify-between text-body-md">
+                <div>
+                  <span className="font-medium text-on-surface">{worker.name}</span>
+                  <span className="text-secondary text-[12px] block">{worker.role || "—"}</span>
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1 font-mono text-[9px] uppercase border px-2 py-0.5 rounded-full ${
+                    worker.status === "Active"
+                      ? "border-tertiary/20 bg-tertiary-container/10 text-tertiary"
+                      : worker.status === "On Leave"
+                      ? "border-outline/20 bg-surface-container-high text-secondary"
+                      : "border-primary/20 bg-error-container/10 text-primary"
+                  }`}
+                >
+                  {worker.status}
+                </span>
               </div>
-              <span
-                className={`inline-flex items-center gap-1 font-mono text-[9px] uppercase border px-2 py-0.5 rounded-full ${
-                  worker.status === "Active"
-                    ? "border-tertiary/20 bg-tertiary-container/10 text-tertiary"
-                    : worker.status === "On Leave"
-                    ? "border-outline/20 bg-surface-container-high text-secondary"
-                    : "border-primary/20 bg-error-container/10 text-primary"
-                }`}
-              >
-                {worker.status}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

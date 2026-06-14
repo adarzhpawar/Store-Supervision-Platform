@@ -1,31 +1,36 @@
-# Memory — Phase 5: Revenue Module
+# Memory — Landing Page & Route Refactoring
 
-Last updated: 2026-06-14 18:41:00
+Last updated: 2026-06-14 20:22:00
 
 ## What was built
 
-- **Revenue Actions**: Created `src/actions/revenue.ts` containing Drizzle ORM aggregations (`getRevenueSummary`, `getDailyRevenue`, `getRevenueByPaymentMethod`, `getRevenueByCategory`).
-- **Revenue Dashboard UI**: Built client-side visualization components using `recharts` (`RevenueSummaryCards.tsx`, `RevenueTrendChart.tsx`, `RevenueBreakdownCharts.tsx`) and integrated them cleanly into the `src/app/revenue/page.tsx` server component.
+- **Route Group Reorganization**: Created a `(dashboard)` route group and moved all protected routes (`billing`, `dashboard`, `inventory`, `revenue`, `settings`, `workers`) inside it.
+- **Layout Separation**: Created `src/app/(dashboard)/layout.tsx` to house the `Sidebar` component, and stripped it from the root `src/app/layout.tsx` to enable full-width pages at the root level.
+- **Landing Page**: Built a complete marketing landing page in `src/app/page.tsx` adhering to Scandinavian Minimalist design rules, including a centered Hero section, Core Capabilities grid, and a "Meet The Creators" section (featuring Adarsh, Krish, Mayur, and Anmol).
+- **TopNav Updates**: Removed the static profile picture from `src/app/components/TopAppBar.tsx`, replacing it with a live real-time clock (showing seconds) and a "Home" button linked to the landing page.
 
 ## Decisions made
 
-- **Dynamic Aggregation**: Chose to dynamically aggregate revenue metrics directly from the existing `bills` and `bill_items` tables rather than creating a separate redundant `revenue` table. This preserves a single source of truth for all financial data.
-- **Default Timeframe**: Set the default timeframe for all revenue queries to the "Last 30 Days".
+- **Architecture**: Used Next.js route groups `(dashboard)` to cleanly isolate layout requirements without polluting the URL structure.
+- **UI Styling**: Enforced the `ui_rules.md` (e.g., hover `translateY(-2px)`, large whitespace, rounded cards) directly within the new landing page using existing utility classes.
+- **Static Assets**: Avoided heavy image assets on the landing page in favor of clean CSS-based components.
 
 ## Problems solved
 
-- **Data Parsing for Recharts**: Effectively mapped Drizzle SQL aggregations (`sum`, `count`, `groupBy`) with PostgreSQL `timestamp` types into flat JavaScript objects suitable for the `recharts` visualization library.
+- Resolved the layout constraint that forced the `Sidebar` onto every page by refactoring the root application structure.
 
 ## Current state
 
-- **Phase 5 is complete**. The Revenue Module is fully functional and successfully fetches real data from the database.
-- Phases 0 through 5 are now complete.
+- The landing page is fully implemented and responsive at the root URL (`/`).
+- The dashboard and its child routes are correctly enclosed in the sidebar layout (`/dashboard`, `/inventory`, etc.).
+- Navigation flows smoothly between the marketing site and the application dashboard.
+- The build is clean and active without errors.
 
 ## Next session starts with
 
-- **Phase 6 — Settings & Users Module** (or the next planned phase).
-- Begin by planning the UI for store-level configurations (e.g. tax rates, store name) and mapping out the user preferences or profile schema if required.
+- Continuing feature development on specific dashboard tabs (e.g., Worker Management, Billing logic) or integrating authentication if the project decides to lock down the dashboard.
 
 ## Open questions
 
-- None.
+- Should the "Meet The Creators" cards link to specific portfolios or social profiles?
+- Are there any specific functional features that need to be built out next in the dashboard?

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { CheckCircle2, XCircle, Clock } from "lucide-react";
 
 interface AttendanceManagerProps {
-  workers: any[];
+  workers: { id: string; name: string; status: string | null; role?: string | null; }[];
 }
 
 export function AttendanceManager({ workers }: AttendanceManagerProps) {

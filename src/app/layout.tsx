@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "StoreSync - Premium Store Management",
@@ -14,11 +13,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="light">
-      <body className="antialiased min-h-screen flex text-on-surface bg-background">
-        <Sidebar />
-        <div className="flex-1 md:ml-72 flex flex-col min-h-screen">
-          {children}
-        </div>
+      <body className="antialiased min-h-screen flex flex-col text-on-surface bg-background">
+        {children}
       </body>
     </html>
   );
