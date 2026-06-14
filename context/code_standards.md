@@ -1,0 +1,801 @@
+# code_standards.md
+
+# CampusConnect ERP Code Standards
+
+Version: 1.0
+
+Language: TypeScript
+
+Framework: Next.js 16
+
+Purpose: Establish consistent coding practices for all AI agents and developers working on the project.
+
+---
+
+# Core Engineering Principles
+
+## Rule 1
+
+Code must be readable before being clever.
+
+Prioritize:
+
+* Readability
+* Maintainability
+* Simplicity
+
+Avoid unnecessary abstractions.
+
+---
+
+## Rule 2
+
+Business logic never lives in UI components.
+
+Correct:
+
+```text
+Page
+ ↓
+Server Action
+ ↓
+Service
+ ↓
+Prisma
+ ↓
+Database
+```
+
+Incorrect:
+
+```text
+Page
+ ↓
+Database Query
+```
+
+---
+
+## Rule 3
+
+Database access only through Prisma.
+
+Never use:
+
+```sql
+SELECT * FROM users
+```
+
+inside React components.
+
+---
+
+## Rule 4
+
+Every feature must be independently testable.
+
+---
+
+## Rule 5
+
+All code must be TypeScript.
+
+JavaScript files are not allowed.
+
+---
+
+# TypeScript Standards
+
+## Strict Mode
+
+Must be enabled.
+
+```json
+{
+  "strict": true
+}
+```
+
+---
+
+## Never Use Any
+
+❌ Bad
+
+```typescript
+const data: any = response;
+```
+
+✅ Good
+
+```typescript
+const data: unknown = response;
+```
+
+---
+
+## Explicit Return Types
+
+❌ Bad
+
+```typescript
+export async function getUser() {
+}
+```
+
+✅ Good
+
+```typescript
+export async function getUser(): Promise<User> {
+}
+```
+
+---
+
+## Type Definitions
+
+Use:
+
+```typescript
+type
+```
+
+for data structures.
+
+Example:
+
+```typescript
+export type Student = {
+  id: string;
+  name: string;
+  email: string;
+};
+```
+
+---
+
+## Interfaces
+
+Use only for component props.
+
+Example:
+
+```typescript
+interface StudentCardProps {
+  student: Student;
+}
+```
+
+---
+
+# File Naming Standards
+
+## Components
+
+PascalCase
+
+✅
+
+```text
+StudentCard.tsx
+AttendanceTable.tsx
+MarksForm.tsx
+```
+
+❌
+
+```text
+studentcard.tsx
+attendance-table.tsx
+```
+
+---
+
+## Pages
+
+Use Next.js routing conventions.
+
+Example:
+
+```text
+app/dashboard/page.tsx
+```
+
+---
+
+## Server Actions
+
+camelCase
+
+```text
+attendance.ts
+marks.ts
+profile.ts
+```
+
+---
+
+## Utility Files
+
+camelCase
+
+```text
+jwt.ts
+prisma.ts
+helpers.ts
+```
+
+---
+
+# Folder Standards
+
+## Components
+
+```text
+components/
+```
+
+Contains only UI components.
+
+Must not:
+
+* Query database
+* Access Prisma
+* Contain business logic
+
+---
+
+## Services
+
+```text
+services/
+```
+
+Contains business logic.
+
+Examples:
+
+```text
+services/auth
+services/attendance
+services/marks
+```
+
+---
+
+## Actions
+
+```text
+actions/
+```
+
+Contains Server Actions.
+
+Only responsible for:
+
+* Receiving data
+* Calling services
+* Returning results
+
+---
+
+## Lib
+
+```text
+lib/
+```
+
+Contains shared utilities.
+
+Examples:
+
+```text
+prisma.ts
+jwt.ts
+utils.ts
+```
+
+---
+
+# React Standards
+
+## Default To Server Components
+
+Use Server Components whenever possible.
+
+Only use Client Components when:
+
+* useState needed
+* useEffect needed
+* Browser APIs needed
+
+---
+
+## Component Structure
+
+Order:
+
+```typescript
+Imports
+
+Types
+
+Component
+
+Export
+```
+
+Example:
+
+```typescript
+import { Student } from "@/types/student";
+
+interface Props {
+  student: Student;
+}
+
+export function StudentCard({
+  student,
+}: Props) {
+  return (
+    <div>
+      {student.name}
+    </div>
+  );
+}
+```
+
+---
+
+## Component Size
+
+Maximum:
+
+```text
+300 lines
+```
+
+If larger:
+
+Split component.
+
+---
+
+# Styling Standards
+
+## Use Tailwind Only
+
+✅
+
+```tsx
+className="flex items-center gap-4"
+```
+
+❌
+
+```tsx
+style={{
+ display:"flex"
+}}
+```
+
+---
+
+## No Inline Styling
+
+Avoid:
+
+```tsx
+style={{ color: "red" }}
+```
+
+---
+
+## Reusable Styling
+
+Common patterns become reusable components.
+
+Example:
+
+```text
+Card
+Button
+DataTable
+```
+
+---
+
+# Form Standards
+
+Use:
+
+```text
+React Hook Form
+```
+
+and
+
+```text
+Zod
+```
+
+for all forms.
+
+---
+
+## Validation Example
+
+```typescript
+const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+```
+
+---
+
+# API Standards
+
+## Response Structure
+
+All API responses must follow:
+
+```typescript
+{
+ success: boolean;
+ data?: unknown;
+ error?: string;
+}
+```
+
+---
+
+## Success Example
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123"
+  }
+}
+```
+
+---
+
+## Error Example
+
+```json
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+---
+
+# Authentication Standards
+
+## Password Storage
+
+Use:
+
+```text
+bcrypt
+```
+
+Never store plain text passwords.
+
+---
+
+## JWT Usage
+
+JWT contains:
+
+```typescript
+{
+ id: string;
+ role: string;
+}
+```
+
+Do not store sensitive information.
+
+---
+
+## Protected Routes
+
+Must be protected through middleware.
+
+Example:
+
+```text
+/attendance
+/marks
+/profile
+/faculty/*
+```
+
+---
+
+# Database Standards
+
+## Primary Keys
+
+Use:
+
+```text
+UUID
+```
+
+for all IDs.
+
+---
+
+## Timestamps
+
+All tables include:
+
+```text
+createdAt
+updatedAt
+```
+
+---
+
+## Foreign Keys
+
+Must be explicitly defined.
+
+Example:
+
+```typescript
+studentId String
+student Student @relation(...)
+```
+
+---
+
+## Naming Convention
+
+Tables:
+
+```text
+PascalCase Models
+```
+
+Example:
+
+```text
+User
+Student
+Attendance
+Marks
+```
+
+Database tables generated by Prisma:
+
+```text
+users
+students
+attendance
+marks
+```
+
+---
+
+# Prisma Standards
+
+## Single Prisma Client
+
+Only:
+
+```typescript
+lib/prisma.ts
+```
+
+creates Prisma instance.
+
+---
+
+## Never Instantiate Twice
+
+❌
+
+```typescript
+new PrismaClient()
+```
+
+inside services.
+
+---
+
+## Correct
+
+```typescript
+import { prisma } from "@/lib/prisma";
+```
+
+---
+
+# Error Handling Standards
+
+Every async function must use:
+
+```typescript
+try {
+}
+catch(error){
+}
+```
+
+---
+
+## Example
+
+```typescript
+try {
+  return await service();
+}
+catch(error){
+  console.error(error);
+}
+```
+
+---
+
+# Logging Standards
+
+Development:
+
+```typescript
+console.log()
+console.error()
+```
+
+Allowed.
+
+---
+
+Production:
+
+Use structured logging service if introduced later.
+
+---
+
+# Security Standards
+
+Required:
+
+* bcrypt
+* JWT
+* Input Validation
+* Zod Validation
+* Route Protection
+
+Never trust client-side data.
+
+Always validate on server.
+
+---
+
+# Performance Standards
+
+Avoid:
+
+* Unnecessary renders
+* Duplicate queries
+* Fetching unused data
+
+Prefer:
+
+```typescript
+select
+```
+
+over
+
+```typescript
+include everything
+```
+
+---
+
+# Accessibility Standards
+
+Every form element must have:
+
+```html
+<label>
+```
+
+---
+
+Buttons must contain:
+
+```html
+aria-label
+```
+
+when needed.
+
+---
+
+Keyboard navigation must work throughout the application.
+
+---
+
+# Git Standards
+
+Commit Format:
+
+```text
+feat: add attendance module
+
+fix: resolve login issue
+
+refactor: simplify marks service
+
+docs: update build plan
+```
+
+---
+
+# Testing Standards
+
+Before marking a feature complete:
+
+Verify:
+
+* Build passes
+* Lint passes
+* Database works
+* Route protection works
+* Mobile layout works
+
+Commands:
+
+```bash
+npm run build
+npm run lint
+```
+
+---
+
+# Non-Negotiable Rules
+
+1. PostgreSQL is the only database.
+
+2. Prisma is mandatory.
+
+3. Business logic never lives in UI.
+
+4. Components must be reusable.
+
+5. Strict TypeScript everywhere.
+
+6. JWT authentication required.
+
+7. Passwords must be hashed.
+
+8. No direct database access inside React components.
+
+9. No duplicate business logic.
+
+10. All code must follow this document.
+
+---
+
+# Definition of Good Code
+
+Good code in CampusConnect ERP is:
+
+* Readable
+* Typed
+* Secure
+* Reusable
+* Testable
+* Maintainable
+* Consistent
+
+If a developer or AI agent is unsure how to implement something, choose the simpler solution that follows these standards.

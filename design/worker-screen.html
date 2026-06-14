@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StoreSync - Workers Management</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#db3237",
+                    "on-secondary-container": "#656464",
+                    "on-secondary-fixed-variant": "#474646",
+                    "on-surface-variant": "#5b403e",
+                    "on-background": "#1d1c16",
+                    "on-tertiary-container": "#f4fffb",
+                    "secondary": "#5f5e5e",
+                    "surface": "#fdf9ef",
+                    "on-primary-fixed-variant": "#930014",
+                    "on-primary-fixed": "#410004",
+                    "outline": "#8f6f6d",
+                    "surface-tint": "#ba1724",
+                    "surface-bright": "#fdf9ef",
+                    "primary-fixed-dim": "#ffb3ae",
+                    "secondary-container": "#e5e2e1",
+                    "surface-container": "#f2ede4",
+                    "on-primary-container": "#fffbff",
+                    "inverse-on-surface": "#f5f0e7",
+                    "tertiary": "#00685a",
+                    "surface-container-high": "#ece8de",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "secondary-fixed": "#e5e2e1",
+                    "surface-container-low": "#f8f3ea",
+                    "outline-variant": "#e4beba",
+                    "tertiary-container": "#008373",
+                    "background": "#fdf9ef",
+                    "inverse-primary": "#ffb3ae",
+                    "on-tertiary-fixed": "#00201b",
+                    "on-surface": "#1d1c16",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#dedad1",
+                    "primary": "#b71422",
+                    "on-tertiary-fixed-variant": "#005046",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#ffdad7",
+                    "surface-container-highest": "#e6e2d9",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#60dac4",
+                    "surface-variant": "#e6e2d9",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#7ef7e0",
+                    "inverse-surface": "#32302a",
+                    "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px",
+                    "2xl": "20px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "gutter": "24px",
+                    "margin-md": "32px",
+                    "margin-lg": "64px",
+                    "margin-sm": "16px",
+                    "section-gap": "80px",
+                    "container-padding": "40px"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Hanken Grotesk"
+                    ],
+                    "label-mono": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-md": [
+                            "Hanken Grotesk"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Hanken Grotesk"
+                    ],
+                    "headline-lg": [
+                            "Hanken Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "80px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.04em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-mono": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.0",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .premium-card {
+            background-color: theme('colors.surface-container-lowest');
+            border: 1px solid theme('colors.outline');
+            border-radius: 20px;
+            padding: 32px;
+        }
+
+        .btn-primary {
+            background-color: #111111;
+            color: white;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-family: theme('fontFamily.label-mono');
+            font-size: theme('fontSize.label-mono');
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            border: 1px solid #111111;
+            background: transparent;
+            color: #111111;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-family: theme('fontFamily.label-mono');
+            font-size: theme('fontSize.label-mono');
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(17, 17, 17, 0.05);
+        }
+        
+        .coral-text {
+            color: #ff4d4d;
+        }
+        .coral-action {
+            background-color: #ff4d4d;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-family: theme('fontFamily.label-mono');
+            font-size: theme('fontSize.label-mono');
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+        .coral-action:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .thin-border {
+            border: 1px solid rgba(29, 28, 22, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex">
+<!-- SideNavBar Component (from SCREEN_5) -->
+<nav class="bg-surface w-72 h-screen flex flex-col border-r border-outline/10 fixed left-0 top-0 py-margin-md px-margin-sm gap-base z-20">
+<div class="px-4 mb-8">
+<h1 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight uppercase">StoreSync</h1>
+<p class="font-label-mono text-label-mono text-secondary mt-1">Premium Management</p>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<a class="text-secondary font-body-md text-body-md flex items-center gap-3 hover:text-on-surface transition-colors hover:bg-surface-container-low duration-200 px-4 py-3 rounded-lg" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                Dashboard
+            </a>
+<a class="text-secondary font-body-md text-body-md flex items-center gap-3 hover:text-on-surface transition-colors hover:bg-surface-container-low duration-200 px-4 py-3 rounded-lg" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Revenue
+            </a>
+<!-- Active State for Workers -->
+<a class="text-on-surface font-bold font-body-md text-body-md flex items-center gap-3 relative after:content-[''] after:absolute after:-right-4 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full px-4 py-3" href="#">
+<span class="material-symbols-outlined">badge</span>
+                Workers
+            </a>
+<a class="text-secondary font-body-md text-body-md flex items-center gap-3 hover:text-on-surface transition-colors hover:bg-surface-container-low duration-200 px-4 py-3 rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Inventory
+            </a>
+<a class="text-secondary font-body-md text-body-md flex items-center gap-3 hover:text-on-surface transition-colors hover:bg-surface-container-low duration-200 px-4 py-3 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto px-4">
+<button class="w-full btn-primary bg-[#ff4d4d]">Create New Bill</button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-72 flex flex-col min-h-screen">
+<!-- TopAppBar Component (from SCREEN_5) -->
+<header class="bg-surface/80 backdrop-blur-md flex justify-between items-center h-20 px-margin-lg border-b border-outline/10 sticky top-0 z-10">
+<div class="flex items-center gap-6">
+<a class="text-on-surface border-b border-primary font-label-mono text-label-mono uppercase tracking-widest pb-1" href="#">Main Store</a>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-label-mono text-label-mono uppercase tracking-widest text-secondary">Current Date</span>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline">
+<img alt="Admin Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArNovtbbfZtGlvoFzfF6dLnqSF2krcjiEF-p4QkQoyzDS1oMLFX2jjzhDY3tFAVdsKwsl6GQe2tMwVUiUE8At1ueP7zMErRdD1sQa5fEt-CvPnSYT199v9Aa1WBXdfb9GuJB6GVU9I2bUi6oVI4T7i_ZEoDF_bhedOAUU8jNa2lxngqNJ-YXh-djdZue8tyKunrxwQuUwGzNtHNoeumLGNnsGZCr0xn7Kz6h4JLkHPG1QvYh3izy5JrA"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 p-container-padding flex flex-col gap-section-gap">
+<!-- Page Header & Actions -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Workers</h2>
+<p class="font-body-lg text-body-lg text-secondary mt-2">Manage your store personnel, attendance, and performance.</p>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+<!-- Search Bar -->
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="w-full bg-transparent border-b border-outline pl-10 pr-4 py-2 font-body-md text-body-md focus:outline-none focus:border-[#ff4d4d] transition-colors" placeholder="Search workers..." type="text"/>
+</div>
+<!-- Filter Dropdown -->
+<div class="relative w-full sm:w-auto">
+<select class="w-full sm:w-auto bg-transparent border-b border-outline pl-4 pr-10 py-2 font-body-md text-body-md appearance-none focus:outline-none focus:border-[#ff4d4d] transition-colors text-on-surface cursor-pointer">
+<option disabled="" selected="" value="">Filter by Role</option>
+<option value="manager">Manager</option>
+<option value="cashier">Cashier</option>
+<option value="stock">Stock Clerk</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
+</div>
+<!-- Primary Action -->
+<button class="w-full sm:w-auto coral-action flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Add New Worker
+                </button>
+</div>
+</section>
+<!-- KPI Section -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Card 1 -->
+<div class="premium-card flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="font-label-mono text-label-mono text-secondary uppercase tracking-widest">Total Workers</span>
+<span class="material-symbols-outlined text-outline">group</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">42</div>
+</div>
+<!-- Card 2 -->
+<div class="premium-card flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="font-label-mono text-label-mono text-secondary uppercase tracking-widest">Present Today</span>
+<span class="material-symbols-outlined text-[#00685a]">how_to_reg</span>
+</div>
+<div class="flex items-end gap-3">
+<div class="font-headline-lg text-headline-lg text-on-surface">38</div>
+<div class="font-label-mono text-label-mono text-[#00685a] mb-2 flex items-center"><span class="material-symbols-outlined text-[16px]">arrow_upward</span> 90%</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="premium-card flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="font-label-mono text-label-mono text-secondary uppercase tracking-widest">Absent Today</span>
+<span class="material-symbols-outlined text-error">person_off</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">4</div>
+</div>
+<!-- Card 4 -->
+<div class="premium-card bg-[#F2F0EB] flex flex-col justify-between h-40 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-[#FF4D4D] opacity-5 rounded-bl-full transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start relative z-10">
+<span class="font-label-mono text-label-mono text-secondary uppercase tracking-widest">Top Performer</span>
+<span class="material-symbols-outlined coral-text" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline-md text-headline-md text-on-surface">E. Larson</div>
+<div class="font-body-md text-body-md text-secondary">Sales Assoc.</div>
+</div>
+</div>
+</section>
+<!-- Detailed Worker Table Section -->
+<section class="premium-card flex flex-col gap-6">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-surface">Roster Directory</h2>
+<button class="btn-secondary text-[12px] py-2 px-4 flex items-center gap-1">
+                    View All <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline/20">
+<th class="py-4 px-2 font-label-mono text-label-mono text-secondary uppercase tracking-widest font-normal">Name</th>
+<th class="py-4 px-2 font-label-mono text-label-mono text-secondary uppercase tracking-widest font-normal">Role</th>
+<th class="py-4 px-2 font-label-mono text-label-mono text-secondary uppercase tracking-widest font-normal">Contact</th>
+<th class="py-4 px-2 font-label-mono text-label-mono text-secondary uppercase tracking-widest font-normal">Attendance</th>
+<th class="py-4 px-2 font-label-mono text-label-mono text-secondary uppercase tracking-widest font-normal">Status</th>
+<th class="py-4 px-2 font-label-mono text-label-mono text-secondary uppercase tracking-widest font-normal text-right">Actions</th>
+</tr>
+</thead>
+<tbody>
+<!-- Row 1 -->
+<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-2">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden thin-border flex-shrink-0">
+<img alt="Profile of worker" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8Gh-eEJmIt2hhbn-inOFFJ8bkBwwwdTZAjYGvWiBbilb5j9v32FzC1O0F7Vwg8S2GFqpIV-abRYeps93YwJHf9hpzuQjsJhfOMteSB8mpY7XdhtEc068adGmAN8ORHHl3-Dt9hJIFEFpCuxGWRHfDLw8GJkIQ0xPMgdyWK8QJzZuyYYRb2h_CCxukHyVXv3HuJ0vsnuJ1xtW7wl5FMgr9V77oxAdIgda6ficFRFRHvxnf9ylcgDDb_Zkdf3ktD_J8Erw"/>
+</div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Aisha Patel</span>
+</div>
+</td>
+<td class="py-4 px-2 font-body-md text-body-md text-secondary">Store Manager</td>
+<td class="py-4 px-2 font-label-mono text-label-mono text-secondary">+1 (555) 019-2834</td>
+<td class="py-4 px-2">
+<div class="flex items-center gap-2">
+<div class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-[#00685a] w-[98%]"></div>
+</div>
+<span class="font-label-mono text-label-mono text-secondary">98%</span>
+</div>
+</td>
+<td class="py-4 px-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full border border-outline/20 font-label-mono text-[10px] uppercase bg-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-[#00685a] mr-2"></span> Active
+                                </span>
+</td>
+<td class="py-4 px-2 text-right">
+<button class="text-secondary hover:coral-text transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline/10 hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-2">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden thin-border flex-shrink-0 flex items-center justify-center text-secondary font-label-mono">
+                                         BJ
+                                    </div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Ben Jacobson</span>
+</div>
+</td>
+<td class="py-4 px-2 font-body-md text-body-md text-secondary">Senior Cashier</td>
+<td class="py-4 px-2 font-label-mono text-label-mono text-secondary">+1 (555) 012-9932</td>
+<td class="py-4 px-2">
+<div class="flex items-center gap-2">
+<div class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-on-surface w-[85%]"></div>
+</div>
+<span class="font-label-mono text-label-mono text-secondary">85%</span>
+</div>
+</td>
+<td class="py-4 px-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full border border-outline/20 font-label-mono text-[10px] uppercase bg-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-[#111111] mr-2"></span> Active
+                                </span>
+</td>
+<td class="py-4 px-2 text-right">
+<button class="text-secondary hover:coral-text transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-2">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden thin-border flex-shrink-0 flex items-center justify-center text-secondary font-label-mono">
+                                         CL
+                                    </div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Chloe Larsen</span>
+</div>
+</td>
+<td class="py-4 px-2 font-body-md text-body-md text-secondary">Stock Clerk</td>
+<td class="py-4 px-2 font-label-mono text-label-mono text-secondary">+1 (555) 014-4421</td>
+<td class="py-4 px-2">
+<div class="flex items-center gap-2">
+<div class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-outline-variant w-[100%]"></div>
+</div>
+<span class="font-label-mono text-label-mono text-secondary">--</span>
+</div>
+</td>
+<td class="py-4 px-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full border border-outline/20 font-label-mono text-[10px] uppercase bg-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant mr-2"></span> On Leave
+                                </span>
+</td>
+<td class="py-4 px-2 text-right">
+<button class="text-secondary hover:coral-text transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+</body></html>
