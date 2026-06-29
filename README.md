@@ -37,7 +37,7 @@ npm install
 StoreSync uses Supabase for authentication and database management. 
 1. Create a free account at [Supabase](https://supabase.com).
 2. Create a new project.
-3. Once created, go to **Project Settings > API** to find your Project URL and Anon Key.
+3. Once created, go to **Project Settings > API** to find your Project URL and Publishable Key (formerly Anon Key).
 
 ### 3. Configure Environment Variables
 
@@ -45,7 +45,7 @@ Create a `.env` file in the root of your project and add your Supabase credentia
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL="your-supabase-project-url"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-publishable-key"
 DATABASE_URL="postgresql://postgres.[your-project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres"
 ```
 
