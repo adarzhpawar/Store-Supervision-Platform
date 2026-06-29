@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { inventory } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth";
 
 const FormSchema = z.object({
   sku: z.string().min(1, "SKU is required"),
@@ -15,6 +16,8 @@ const FormSchema = z.object({
   stock: z.coerce.number().int().min(0, "Stock must be an integer greater than or equal to 0").default(0),
   minStock: z.coerce.number().int().min(0, "Min stock must be an integer greater than or equal to 0").default(0),
   barcode: z.string().optional(),
+  importedDate: z.string().optional(),
+  expiryDate: z.string().optional(),
 });
 
 export type State = {
@@ -27,6 +30,8 @@ export type State = {
     stock?: string[];
     minStock?: string[];
     barcode?: string[];
+    importedDate?: string[];
+    expiryDate?: string[];
   };
   message?: string | null;
   success?: boolean;
@@ -42,6 +47,8 @@ export async function createProduct(prevState: State, formData: FormData): Promi
     stock: formData.get("stock"),
     minStock: formData.get("minStock"),
     barcode: formData.get("barcode"),
+    importedDate: formData.get("importedDate"),
+    expiryDate: formData.get("expiryDate"),
   });
 
   if (!validatedFields.success) {
@@ -52,10 +59,12 @@ export async function createProduct(prevState: State, formData: FormData): Promi
     };
   }
 
-  const { sku, name, category, price, costPrice, stock, minStock, barcode } = validatedFields.data;
+  const { sku, name, category, price, costPrice, stock, minStock, barcode, importedDate, expiryDate } = validatedFields.data;
 
   try {
+    const { store } = await requireAuth();
     await db.insert(inventory).values({
+      storeId: store.id,
       sku,
       name,
       category: category || null,
@@ -64,6 +73,8 @@ export async function createProduct(prevState: State, formData: FormData): Promi
       stock,
       minStock,
       barcode: barcode || null,
+      importedDate: importedDate || null,
+      expiryDate: expiryDate || null,
     });
   } catch (error: unknown) {
     // If it's a unique constraint violation on SKU
@@ -93,6 +104,8 @@ export async function updateProduct(id: string, prevState: State, formData: Form
     stock: formData.get("stock"),
     minStock: formData.get("minStock"),
     barcode: formData.get("barcode"),
+    importedDate: formData.get("importedDate"),
+    expiryDate: formData.get("expiryDate"),
   });
 
   if (!validatedFields.success) {
@@ -103,9 +116,10 @@ export async function updateProduct(id: string, prevState: State, formData: Form
     };
   }
 
-  const { sku, name, category, price, costPrice, stock, minStock, barcode } = validatedFields.data;
+  const { sku, name, category, price, costPrice, stock, minStock, barcode, importedDate, expiryDate } = validatedFields.data;
 
   try {
+    const { store } = await requireAuth();
     await db
       .update(inventory)
       .set({
@@ -117,9 +131,11 @@ export async function updateProduct(id: string, prevState: State, formData: Form
         stock,
         minStock,
         barcode: barcode || null,
+        importedDate: importedDate || null,
+        expiryDate: expiryDate || null,
         updatedAt: new Date(),
       })
-      .where(eq(inventory.id, id));
+      .where(and(eq(inventory.id, id), eq(inventory.storeId, store.id)));
   } catch (error: unknown) {
     if (typeof error === "object" && error !== null && (error as { code?: string }).code === '23505') {
        return {
@@ -139,7 +155,8 @@ export async function updateProduct(id: string, prevState: State, formData: Form
 
 export async function deleteProduct(id: string) {
   try {
-    await db.delete(inventory).where(eq(inventory.id, id));
+    const { store } = await requireAuth();
+    await db.delete(inventory).where(and(eq(inventory.id, id), eq(inventory.storeId, store.id)));
     revalidatePath("/inventory");
     return { message: "Deleted Product", success: true };
   } catch {

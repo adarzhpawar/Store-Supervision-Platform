@@ -1,25 +1,10 @@
 "use server";
 
 import { db } from "@/db";
-import { settings } from "@/db/schema";
+import { stores } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
-
-export async function getSettings() {
-  const result = await db.select().from(settings).limit(1);
-  if (result.length > 0) {
-    return result[0];
-  }
-
-  // If no settings exist, create a default one
-  const [defaultSettings] = await db.insert(settings).values({
-    storeName: "My Store",
-    taxRate: "0.00",
-    invoicePrefix: "INV-",
-  }).returning();
-
-  return defaultSettings;
-}
+import { requireAuth } from "@/lib/auth";
 
 export async function updateSettings(data: {
   storeName: string;
@@ -27,17 +12,30 @@ export async function updateSettings(data: {
   storePhone: string | null;
   taxRate: string;
   invoicePrefix: string;
+  accentColor: string;
 }) {
-  const currentSettings = await getSettings();
+  const { store } = await requireAuth();
+
+  if (data.storePhone) {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/
+    if (!phoneRegex.test(data.storePhone)) {
+      return { error: 'Please provide a valid phone number (e.g., +1234567890)' }
+    }
+  }
 
   await db
-    .update(settings)
+    .update(stores)
     .set({
-      ...data,
+      name: data.storeName,
+      address: data.storeAddress,
+      phone: data.storePhone,
+      taxRate: data.taxRate,
+      invoicePrefix: data.invoicePrefix,
+      accentColor: data.accentColor,
       updatedAt: new Date(),
     })
-    .where(eq(settings.id, currentSettings.id));
+    .where(eq(stores.id, store.id));
 
-  revalidatePath("/settings");
-  revalidatePath("/"); // revalidate all to apply new store name/tax
+  revalidatePath('/', 'layout');
+  return { success: true };
 }

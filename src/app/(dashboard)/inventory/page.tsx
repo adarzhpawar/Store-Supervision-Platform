@@ -3,16 +3,16 @@ import { db } from "@/db";
 import { inventory } from "@/db/schema";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { CreateProductDialog } from "@/components/inventory/CreateProductDialog";
-import { desc } from "drizzle-orm";
-import { getSettings } from "@/actions/settings";
+import { desc, eq } from "drizzle-orm";
+import { requireAuth } from "@/lib/auth";
 
 export default async function InventoryPage() {
-  const products = await db.select().from(inventory).orderBy(desc(inventory.createdAt));
-  const settings = await getSettings();
+  const { store } = await requireAuth();
+  const products = await db.select().from(inventory).where(eq(inventory.storeId, store.id)).orderBy(desc(inventory.createdAt));
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-y-auto">
-      <TopAppBar storeName={settings.storeName} />
+      <TopAppBar storeName={store.name} />
       <div className="flex-1 p-container-padding">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>

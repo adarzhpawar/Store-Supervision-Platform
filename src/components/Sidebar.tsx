@@ -57,11 +57,10 @@ export function SidebarContent() {
         })}
       </div>
 
-      {/* CTA Bottom Button */}
-      <div className="mt-auto px-4 pb-4 md:pb-0">
+      <div className="mt-auto px-4 pb-8 md:pb-0">
         <Link href="/billing" className="w-full block">
-          <button className="w-full coral-action font-mono text-label-mono uppercase tracking-widest text-center cursor-pointer">
-            Create New Bill
+          <button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors py-3 rounded-lg font-mono text-[13px] uppercase tracking-widest text-center cursor-pointer shadow-sm font-semibold">
+            New Bill
           </button>
         </Link>
       </div>

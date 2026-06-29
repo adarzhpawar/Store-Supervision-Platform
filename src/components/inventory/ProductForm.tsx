@@ -1,10 +1,15 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { format, parseISO } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -19,7 +24,7 @@ export type FormState = { message?: string | null; errors?: Record<string, strin
 
 interface ProductFormProps {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
-  initialData?: { sku: string; barcode?: string | null; name: string; category?: string | null; price: string; costPrice?: string | null; stock: number; minStock: number; };
+  initialData?: { sku: string; barcode?: string | null; name: string; category?: string | null; price: string; costPrice?: string | null; stock: number; minStock: number; importedDate?: string | null; expiryDate?: string | null; };
   onSuccess?: () => void;
 }
 
@@ -31,6 +36,8 @@ const initialState = {
 
 export function ProductForm({ action, initialData, onSuccess }: ProductFormProps) {
   const [state, formAction] = useActionState(action, initialState);
+  const [importedDate, setImportedDate] = useState<Date | undefined>(initialData?.importedDate ? parseISO(initialData.importedDate) : undefined);
+  const [expiryDate, setExpiryDate] = useState<Date | undefined>(initialData?.expiryDate ? parseISO(initialData.expiryDate) : undefined);
 
   // Close dialog on success
   useEffect(() => {
@@ -93,6 +100,47 @@ export function ProductForm({ action, initialData, onSuccess }: ProductFormProps
         <div className="space-y-2">
           <Label htmlFor="minStock">Min Stock Level</Label>
           <Input id="minStock" name="minStock" type="number" defaultValue={initialData?.minStock ?? 0} required />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2 flex flex-col">
+          <Label htmlFor="importedDate">Import Date</Label>
+          <input type="hidden" name="importedDate" value={importedDate ? format(importedDate, 'yyyy-MM-dd') : ""} />
+          <Popover>
+            <PopoverTrigger render={
+              <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal bg-background", !importedDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {importedDate ? format(importedDate, "PPP") : <span>Pick a date</span>}
+              </Button>
+            } />
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={importedDate}
+                onSelect={setImportedDate}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="space-y-2 flex flex-col">
+          <Label htmlFor="expiryDate">Expiry Date</Label>
+          <input type="hidden" name="expiryDate" value={expiryDate ? format(expiryDate, 'yyyy-MM-dd') : ""} />
+          <Popover>
+            <PopoverTrigger render={
+              <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal bg-background", !expiryDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {expiryDate ? format(expiryDate, "PPP") : <span>Pick a date</span>}
+              </Button>
+            } />
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={expiryDate}
+                onSelect={setExpiryDate}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 

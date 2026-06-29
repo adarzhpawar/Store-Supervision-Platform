@@ -1,36 +1,39 @@
-# Memory — Landing Page & Route Refactoring
+# Memory — Revenue Enhancements, UI Polish & Multi-Tenancy Seeding
 
-Last updated: 2026-06-14 20:22:00
+Last updated: 2026-06-30
 
 ## What was built
 
-- **Route Group Reorganization**: Created a `(dashboard)` route group and moved all protected routes (`billing`, `dashboard`, `inventory`, `revenue`, `settings`, `workers`) inside it.
-- **Layout Separation**: Created `src/app/(dashboard)/layout.tsx` to house the `Sidebar` component, and stripped it from the root `src/app/layout.tsx` to enable full-width pages at the root level.
-- **Landing Page**: Built a complete marketing landing page in `src/app/page.tsx` adhering to Scandinavian Minimalist design rules, including a centered Hero section, Core Capabilities grid, and a "Meet The Creators" section (featuring Adarsh, Krish, Mayur, and Anmol).
-- **TopNav Updates**: Removed the static profile picture from `src/app/components/TopAppBar.tsx`, replacing it with a live real-time clock (showing seconds) and a "Home" button linked to the landing page.
+- **Revenue Page Enhancements**: Implemented custom date range filtering (via URL search params `from` and `to`). Created `RevenueDateRangePicker.tsx`, `BillsList.tsx` (to show granular bills), and `AddPastRecordDialog.tsx` (allowing manual injection of backdated revenue directly into the DB).
+- **Form UI Upgrades**: Completely ripped out all native HTML `<input type="date">` and `<select>` elements across `AttendanceManager` and `ProductForm` (as well as filtering/status dropdowns). Replaced them globally with Shadcn `Calendar`, `Popover`, and `Select` components for a cohesive premium feel.
+- **Data Seeding & Multi-Tenancy**: 
+  - Ran `seed.ts` to transform the primary account into an Indian Grocery Store (INR, 15 bills, Indian workers, grocery inventory).
+  - Built `create-tech-store.ts` to programmatically register a new Supabase user (`demo@store.com` / `Password123!`) and populate a secondary "ElectroTech Hub" store, fully verifying multi-tenancy separation.
+- **Mobile Menu Fixes**: Fixed the Shadcn `Sheet` mobile navigation so it automatically closes on route changes (`[pathname]`). Adjusted padding (`pb-8` on `SheetContent` and `SidebarContent`) and shortened action text to "New Bill" to prevent overlapping with iOS safe areas and Next.js dev overlays.
+- **Bug Fixes**: Resolved the double-download bug in the PDF receipt generator.
 
 ## Decisions made
 
-- **Architecture**: Used Next.js route groups `(dashboard)` to cleanly isolate layout requirements without polluting the URL structure.
-- **UI Styling**: Enforced the `ui_rules.md` (e.g., hover `translateY(-2px)`, large whitespace, rounded cards) directly within the new landing page using existing utility classes.
-- **Static Assets**: Avoided heavy image assets on the landing page in favor of clean CSS-based components.
+- **Past Revenue Logic**: Decided to handle past revenue entries as lump-sum `bills` (without individual `billItems`) to drastically simplify the entry process for users while still feeding accurately into the revenue charts.
+- **UI Components**: Exclusively committed to Shadcn UI components over native HTML elements to guarantee consistent styling across Safari/Chrome and Desktop/Mobile.
 
 ## Problems solved
 
-- Resolved the layout constraint that forced the `Sidebar` onto every page by refactoring the root application structure.
+- Shadcn `Sheet` staying open after navigating to a new route in mobile view (solved by syncing `isOpen` state with `usePathname`).
+- Mobile menu bottom-action button overlapping with the bottom edge of the screen (solved by enforcing strict bottom padding on the fixed drawer layout).
 
 ## Current state
 
-- The landing page is fully implemented and responsive at the root URL (`/`).
-- The dashboard and its child routes are correctly enclosed in the sidebar layout (`/dashboard`, `/inventory`, etc.).
-- Navigation flows smoothly between the marketing site and the application dashboard.
-- The build is clean and active without errors.
+- The Revenue dashboard is fully dynamic, date-aware, and supports manual historical data entry.
+- Forms are beautifully standardized with custom dropdowns and date pickers.
+- Multi-tenancy is verified via two separate populated stores.
+- Mobile navigation is polished and functional.
 
 ## Next session starts with
 
-- Continuing feature development on specific dashboard tabs (e.g., Worker Management, Billing logic) or integrating authentication if the project decides to lock down the dashboard.
+- Building out any remaining feature requests (such as detailed inventory low-stock alerts or settings expansions) or preparing the application for a full production deployment.
 
 ## Open questions
 
-- Should the "Meet The Creators" cards link to specific portfolios or social profiles?
-- Are there any specific functional features that need to be built out next in the dashboard?
+- Are there any further refinements needed for the PDF receipts, or are they finalized?
+- Should we add a dedicated "User Profile" view, or is the current Settings page sufficient?

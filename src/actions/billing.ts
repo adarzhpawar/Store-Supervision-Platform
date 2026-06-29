@@ -2,9 +2,10 @@
 
 import { db } from "@/db";
 import { bills, billItems, inventory } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth";
 
 const billItemSchema = z.object({
   productId: z.string().uuid(),
@@ -28,6 +29,8 @@ const createBillSchema = z.object({
 export type BillData = {
   invoiceNumber: string;
   date: string;
+  storeName: string;
+  accentColor: string;
   customerName: string;
   items: { productId: string; quantity: number; unitPrice: number; totalPrice: number; name: string }[];
   subtotal: number;
@@ -51,6 +54,7 @@ export async function createBill(
   formData: FormData
 ): Promise<CreateBillState> {
   try {
+    const { store } = await requireAuth();
     const rawItems = formData.get("items") as string;
     const items = JSON.parse(rawItems || "[]");
 
@@ -77,13 +81,16 @@ export async function createBill(
 
     // Generate unique invoice number
     const date = new Date();
-    const invoiceNumber = `INV-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+    // Use store prefix if possible, here we'll just prepend the default or custom
+    const invoicePrefix = store.invoicePrefix || "INV-";
+    const invoiceNumber = `${invoicePrefix}${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
 
     let newBillId = "";
 
     await db.transaction(async (tx) => {
       // 1. Insert bill
       const [insertedBill] = await tx.insert(bills).values({
+        storeId: store.id,
         invoiceNumber,
         customerName: data.customerName,
         subtotal: data.subtotal.toString(),
@@ -111,7 +118,7 @@ export async function createBill(
           .set({
             stock: sql`${inventory.stock} - ${item.quantity}`,
           })
-          .where(eq(inventory.id, item.productId));
+          .where(and(eq(inventory.id, item.productId), eq(inventory.storeId, store.id)));
       }
     });
 
@@ -123,6 +130,8 @@ export async function createBill(
     const billDataForPdf = {
       invoiceNumber,
       date: new Date().toISOString(),
+      storeName: store.name,
+      accentColor: store.accentColor || 'red',
       customerName: data.customerName || "Walk-in Customer",
       items: data.items.map(item => ({
         ...item,

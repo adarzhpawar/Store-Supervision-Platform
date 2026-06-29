@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface WorkersClientProps {
   workers: { id: string; name: string; phone?: string | null; email?: string | null; role?: string | null; salary?: string | null; status: string | null; }[];
@@ -44,15 +45,16 @@ export function WorkersClient({ workers }: WorkersClientProps) {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <select 
-              className="flex h-10 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="active">Active Only</option>
-              <option value="inactive">Inactive Only</option>
-              <option value="all">All Statuses</option>
-            </select>
+            <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v || '')}>
+              <SelectTrigger className="w-[140px] h-10 bg-background border-input text-sm">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active Only</SelectItem>
+                <SelectItem value="inactive">Inactive Only</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

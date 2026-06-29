@@ -33,7 +33,7 @@ export default function LandingPage() {
           Track inventory, manage workers, monitor revenue and generate bills instantly. A minimalist approach to complex operational data.
         </p>
         <div className="flex flex-wrap justify-center gap-4 pt-4">
-          <Link href="/dashboard" className="coral-action">Start Managing</Link>
+          <Link href="/dashboard" className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors py-3 px-6 rounded-lg font-mono text-xs uppercase tracking-widest text-center">Start Managing</Link>
           <button className="btn-secondary flex items-center gap-2">
             <PlayCircle className="w-4 h-4" /> Watch Demo
           </button>
@@ -104,7 +104,7 @@ export default function LandingPage() {
       <section id="creators" className="px-8 md:px-16 py-24 max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-display font-medium mb-4">Meet The Creators</h2>
-          <p className="text-secondary text-lg">The team behind StoreSync's Scandinavian precision.</p>
+          <p className="text-secondary text-lg">The team behind StoreSync&apos;s Scandinavian precision.</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

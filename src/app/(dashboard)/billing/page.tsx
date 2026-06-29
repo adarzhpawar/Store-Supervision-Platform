@@ -2,12 +2,12 @@ import { TopAppBar } from "@/components/TopAppBar";
 import { POSInterface } from "@/components/billing/POSInterface";
 import { db } from "@/db";
 import { inventory } from "@/db/schema";
-import { asc } from "drizzle-orm";
-import { getSettings } from "@/actions/settings";
+import { asc, eq } from "drizzle-orm";
+import { requireAuth } from "@/lib/auth";
 
 export default async function BillingPage() {
-  const productsData = await db.select().from(inventory).orderBy(asc(inventory.name));
-  const settings = await getSettings();
+  const { store } = await requireAuth();
+  const productsData = await db.select().from(inventory).where(eq(inventory.storeId, store.id)).orderBy(asc(inventory.name));
   
   const products = productsData.map(p => ({
     id: p.id,
@@ -19,7 +19,7 @@ export default async function BillingPage() {
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-hidden">
-      <TopAppBar storeName={settings.storeName} />
+      <TopAppBar storeName={store.name} />
       <div className="flex-1 p-container-padding flex flex-col h-full overflow-hidden">
         <div className="mb-4 shrink-0">
           <h1 className="font-display text-display-lg text-on-surface leading-none tracking-tight">

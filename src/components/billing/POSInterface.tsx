@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
-import { createBill, CreateBillState, BillData } from "@/actions/billing";
+import { useState, useActionState, useMemo } from "react";
+import { createBill, CreateBillState } from "@/actions/billing";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Minus, Trash2, Receipt, FileText } from "lucide-react";
-import { PDFDownloadLink, usePDF } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./InvoicePDF";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 type Product = {
@@ -28,22 +29,6 @@ const initialState: CreateBillState = {
   message: "",
 };
 
-function AutoDownloadPDF({ data, fileName }: { data: BillData; fileName: string }) {
-  const [instance] = usePDF({ document: <InvoicePDF data={data} /> });
-
-  useEffect(() => {
-    if (instance.url && !instance.loading && !instance.error) {
-      const link = document.createElement("a");
-      link.href = instance.url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  }, [instance.url, instance.loading, instance.error, fileName]);
-
-  return null;
-}
 
 export function POSInterface({ products }: { products: Product[] }) {
   const [search, setSearch] = useState("");
@@ -67,11 +52,15 @@ export function POSInterface({ products }: { products: Product[] }) {
   }, initialState);
 
   // Filter products based on search
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = useMemo(() => {
+    if (!search) return products;
+    const lowerSearch = search.toLowerCase();
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(lowerSearch) ||
+        p.sku.toLowerCase().includes(lowerSearch)
+    );
+  }, [products, search]);
 
   // Cart operations
   const addToCart = (product: Product) => {
@@ -108,10 +97,10 @@ export function POSInterface({ products }: { products: Product[] }) {
   };
 
   // Calculations
-  const subtotal = cart.reduce(
+  const subtotal = useMemo(() => cart.reduce(
     (sum, item) => sum + parseFloat(item.price) * item.quantity,
     0
-  );
+  ), [cart]);
   const total = subtotal + tax - discount;
 
   const itemsForForm = cart.map((item) => ({
@@ -151,7 +140,7 @@ export function POSInterface({ products }: { products: Product[] }) {
               <div className="text-sm text-secondary mb-2">{product.sku}</div>
               <div className="mt-auto flex items-center justify-between w-full">
                 <span className="font-bold text-primary">
-                  ${parseFloat(product.price).toFixed(2)}
+                  ₹{parseFloat(product.price).toFixed(2)}
                 </span>
                 <Badge variant={product.stock > 0 ? "default" : "destructive"}>
                   {product.stock} in stock
@@ -187,7 +176,7 @@ export function POSInterface({ products }: { products: Product[] }) {
                 <div className="flex-1">
                   <div className="font-medium text-sm line-clamp-1">{item.name}</div>
                   <div className="text-sm text-primary font-bold">
-                    ${parseFloat(item.price).toFixed(2)}
+                    ₹{parseFloat(item.price).toFixed(2)}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 bg-surface rounded-md border border-border">
@@ -206,7 +195,7 @@ export function POSInterface({ products }: { products: Product[] }) {
                   </button>
                 </div>
                 <div className="font-bold text-sm w-16 text-right">
-                  ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                  ₹{(parseFloat(item.price) * item.quantity).toFixed(2)}
                 </div>
                 <button
                   onClick={() => removeFromCart(item.id)}
@@ -240,17 +229,16 @@ export function POSInterface({ products }: { products: Product[] }) {
             </div>
             <div className="space-y-1">
               <Label htmlFor="paymentMethod" className="text-xs">Payment Method</Label>
-              <select
-                id="paymentMethod"
-                name="paymentMethod"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="flex h-8 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="Cash">Cash</option>
-                <option value="Card">Card</option>
-                <option value="UPI">UPI</option>
-              </select>
+              <Select name="paymentMethod" value={paymentMethod} onValueChange={(v) => setPaymentMethod(v || '')}>
+                <SelectTrigger id="paymentMethod" className="h-8 w-full bg-background border-input shadow-sm focus-visible:ring-1 focus-visible:ring-ring text-sm px-3 py-1">
+                  <SelectValue placeholder="Payment Method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                  <SelectItem value="UPI">UPI</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
               <Label htmlFor="discount" className="text-xs">Discount (₹)</Label>
@@ -342,7 +330,7 @@ export function POSInterface({ products }: { products: Product[] }) {
           <DialogFooter className="flex-col sm:flex-col gap-2">
             {!!state.billData && (
               <>
-                <AutoDownloadPDF data={state.billData} fileName={`${state.invoiceNumber}.pdf`} />
+
                 <PDFDownloadLink
                   document={<InvoicePDF data={state.billData} />}
                   fileName={`${state.invoiceNumber}.pdf`}

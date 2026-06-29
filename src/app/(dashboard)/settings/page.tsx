@@ -1,9 +1,19 @@
 import { TopAppBar } from "@/components/TopAppBar";
-import { getSettings } from "@/actions/settings";
+import { requireAuth } from "@/lib/auth";
 import SettingsForm from "@/components/settings/SettingsForm";
 
 export default async function SettingsPage() {
-  const settings = await getSettings();
+  const { store } = await requireAuth();
+
+  const settings = {
+    id: store.id,
+    storeName: store.name,
+    storeAddress: store.address,
+    storePhone: store.phone,
+    taxRate: store.taxRate,
+    invoicePrefix: store.invoicePrefix,
+    accentColor: store.accentColor,
+  };
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-y-auto">

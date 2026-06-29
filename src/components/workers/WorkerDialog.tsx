@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Edit } from "lucide-react";
 import { createWorker, updateWorker } from "@/actions/workers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface WorkerDialogProps {
   worker?: { id: string; name: string; phone?: string | null; email?: string | null; role?: string | null; salary?: string | null; status: string | null; };
@@ -74,11 +75,11 @@ export function WorkerDialog({ worker, onSuccess, trigger }: WorkerDialogProps) 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" defaultValue={worker?.phone || ""} />
+              <Input id="phone" name="phone" defaultValue={worker?.phone || ""} pattern="^\+?[1-9]\d{1,14}$" title="Please provide a valid phone number (e.g., +1234567890)" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" defaultValue={worker?.email || ""} />
+              <Input id="email" name="email" type="email" defaultValue={worker?.email || ""} pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please provide a valid email address" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -94,15 +95,15 @@ export function WorkerDialog({ worker, onSuccess, trigger }: WorkerDialogProps) 
           {worker && (
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <select 
-                id="status" 
-                name="status" 
-                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                defaultValue={worker?.status || "active"}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
+              <Select name="status" defaultValue={worker?.status || "active"}>
+                <SelectTrigger id="status" className="h-10 w-full bg-background border-input text-sm">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
 

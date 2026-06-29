@@ -107,6 +107,17 @@ const styles = StyleSheet.create({
   },
 });
 
+const getHexColor = (color: string) => {
+  switch (color) {
+    case "red": return "#b71422";
+    case "blue": return "#2563eb";
+    case "emerald": return "#059669";
+    case "zinc": return "#18181b";
+    case "amber": return "#d97706";
+    default: return "#000000";
+  }
+};
+
 export type InvoiceItem = {
   name: string;
   quantity: number;
@@ -117,6 +128,8 @@ export type InvoiceItem = {
 export type InvoiceData = {
   invoiceNumber: string;
   date: string;
+  storeName: string;
+  accentColor: string;
   customerName: string;
   items: InvoiceItem[];
   subtotal: number;
@@ -130,7 +143,9 @@ export const InvoicePDF = ({ data }: { data: InvoiceData }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
-        <Text style={styles.title}>STOCKHOLM FLAGSHIP</Text>
+        <Text style={{ ...styles.title, color: getHexColor(data.accentColor) }}>
+          {data.storeName.toUpperCase()}
+        </Text>
         <Text style={styles.subtitle}>RECEIPT / TAX INVOICE</Text>
       </View>
 
@@ -191,8 +206,8 @@ export const InvoicePDF = ({ data }: { data: InvoiceData }) => (
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <Text>Thank you for shopping at Stockholm Flagship!</Text>
+      <View style={{ ...styles.footer, borderTopColor: getHexColor(data.accentColor) }}>
+        <Text>Thank you for shopping at {data.storeName}!</Text>
         <Text>For returns or exchanges, please retain this receipt.</Text>
       </View>
     </Page>

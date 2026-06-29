@@ -21,20 +21,20 @@ export function WorkerAttendance({ summary, workers }: WorkerAttendanceProps) {
 
   return (
     <div className="premium-card flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start sm:items-center gap-3 flex-wrap">
         <h3 className="font-headline text-headline-md text-on-surface">Personnel Attendance</h3>
-        <span className="font-mono text-label-mono text-secondary uppercase tracking-wider">
+        <span className="font-mono text-[10px] sm:text-xs text-secondary uppercase tracking-wider">
           Today
         </span>
       </div>
 
       {/* Progress bar and percentages */}
       <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-baseline">
-          <span className="font-headline text-[36px] font-bold text-on-surface leading-none">
+        <div className="flex flex-wrap justify-between items-baseline gap-2">
+          <span className="font-headline text-[32px] sm:text-[36px] font-bold text-on-surface leading-none">
             {summary.present}/{summary.total}
           </span>
-          <span className="font-mono text-label-mono text-tertiary font-bold">
+          <span className="font-mono text-[10px] sm:text-xs text-tertiary font-bold">
             {presentRate}% Present
           </span>
         </div>
@@ -66,22 +66,24 @@ export function WorkerAttendance({ summary, workers }: WorkerAttendanceProps) {
         ) : (
           <div className="flex flex-col gap-2.5">
             {workers.map((worker) => (
-              <div key={worker.name} className="flex items-center justify-between text-body-md">
-                <div>
-                  <span className="font-medium text-on-surface">{worker.name}</span>
-                  <span className="text-secondary text-[12px] block">{worker.role || "—"}</span>
+              <div key={worker.name} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-body-md border-b sm:border-b-0 border-outline-variant/10 pb-2 sm:pb-0 last:border-b-0">
+                <div className="min-w-0">
+                  <span className="font-medium text-on-surface block truncate">{worker.name}</span>
+                  <span className="text-secondary text-[12px] block truncate">{worker.role || "—"}</span>
                 </div>
-                <span
-                  className={`inline-flex items-center gap-1 font-mono text-[9px] uppercase border px-2 py-0.5 rounded-full ${
-                    worker.status === "Active"
-                      ? "border-tertiary/20 bg-tertiary-container/10 text-tertiary"
-                      : worker.status === "On Leave"
-                      ? "border-outline/20 bg-surface-container-high text-secondary"
-                      : "border-primary/20 bg-error-container/10 text-primary"
-                  }`}
-                >
-                  {worker.status}
-                </span>
+                <div className="flex-shrink-0 text-left sm:text-right">
+                  <span
+                    className={`inline-flex items-center gap-1 font-mono text-[9px] uppercase border px-2 py-0.5 rounded-full whitespace-nowrap ${
+                      worker.status === "Active"
+                        ? "border-tertiary/20 bg-tertiary-container/10 text-tertiary"
+                        : worker.status === "On Leave"
+                        ? "border-outline/20 bg-surface-container-high text-secondary"
+                        : "border-primary/20 bg-error-container/10 text-primary"
+                    }`}
+                  >
+                    {worker.status}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

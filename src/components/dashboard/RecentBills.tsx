@@ -27,63 +27,38 @@ export function RecentBills({ bills }: RecentBillsProps) {
           </p>
         </div>
       ) : (
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-outline-variant/30">
-                <th className="font-mono text-label-mono text-secondary py-4 px-2 uppercase tracking-wider font-normal">
-                  Invoice
-                </th>
-                <th className="font-mono text-label-mono text-secondary py-4 px-2 uppercase tracking-wider font-normal">
-                  Customer
-                </th>
-                <th className="font-mono text-label-mono text-secondary py-4 px-2 uppercase tracking-wider font-normal">
-                  Amount
-                </th>
-                <th className="font-mono text-label-mono text-secondary py-4 px-2 uppercase tracking-wider font-normal">
-                  Payment
-                </th>
-                <th className="font-mono text-label-mono text-secondary py-4 px-2 uppercase tracking-wider font-normal">
-                  Date
-                </th>
-                <th className="font-mono text-label-mono text-secondary py-4 px-2 uppercase tracking-wider font-normal">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="font-body text-body-md">
-              {bills.map((bill, index) => (
-                <tr
-                  key={bill.id}
-                  className={`border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors ${
-                    index === bills.length - 1 ? "border-b-0" : ""
-                  }`}
-                >
-                  <td className="py-4 px-2 font-mono text-secondary">{bill.invoiceNumber}</td>
-                  <td className="py-4 px-2 font-medium text-on-surface">{bill.customerName || "Walk-in Customer"}</td>
-                  <td className="py-4 px-2 font-medium text-on-surface">
-                    ₹{Number(bill.total).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="py-4 px-2 text-secondary">{bill.paymentMethod}</td>
-                  <td className="py-4 px-2 text-secondary">
-                    {bill.createdAt
-                      ? new Date(bill.createdAt).toLocaleDateString("en-IN", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : "—"}
-                  </td>
-                  <td className="py-4 px-2">
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase border border-outline-variant/30 px-3 py-1 rounded-full bg-surface-container-lowest">
-                      <span className="w-1.5 h-1.5 rounded-full bg-tertiary" />
-                      Completed
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {bills.map((bill) => (
+            <div key={bill.id} className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-outline-variant/20 hover:shadow-md hover:border-outline-variant/40 transition-all flex flex-col gap-3 relative group">
+              <div className="flex justify-between items-start">
+                 <div>
+                    <span className="text-[10px] font-mono text-secondary bg-surface-container-lowest border border-outline-variant/30 px-2 py-0.5 rounded-md">{bill.invoiceNumber}</span>
+                    <h4 className="font-medium text-on-surface mt-3">{bill.customerName || "Walk-in Customer"}</h4>
+                 </div>
+                 <div className="text-right">
+                    <p className="font-semibold text-lg text-on-surface">₹{Number(bill.total).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
+                 </div>
+              </div>
+              <div className="flex justify-between items-end mt-2 pt-3 border-t border-outline-variant/10">
+                 <div className="flex flex-col gap-1 text-[11px] font-medium text-secondary tracking-wide uppercase">
+                    <span>{bill.paymentMethod}</span>
+                    <span>
+                      {bill.createdAt
+                        ? new Date(bill.createdAt).toLocaleDateString("en-IN", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "—"}
                     </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                 </div>
+                 <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase border border-outline-variant/30 px-2.5 py-1 rounded-full bg-surface-container-lowest text-secondary">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Completed
+                 </span>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

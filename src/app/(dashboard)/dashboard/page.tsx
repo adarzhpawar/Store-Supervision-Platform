@@ -4,7 +4,7 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { InventoryAlerts } from "@/components/dashboard/InventoryAlerts";
 import { RecentBills } from "@/components/dashboard/RecentBills";
 import { WorkerAttendance } from "@/components/dashboard/WorkerAttendance";
-import { getSettings } from "@/actions/settings";
+import { requireAuth } from "@/lib/auth";
 import {
   getDashboardMetrics,
   getMonthlyRevenueTrend,
@@ -27,9 +27,9 @@ function computeChange(current: number, previous: number): { text: string; color
 }
 
 export default async function DashboardPage() {
-  const [settings, metrics, revenueData, recentBills, lowStockAlerts, attendanceData] =
+  const [{ store }, metrics, revenueData, recentBills, lowStockAlerts, attendanceData] =
     await Promise.all([
-      getSettings(),
+      requireAuth(),
       getDashboardMetrics(),
       getMonthlyRevenueTrend(),
       getRecentBills(5),
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="flex-1 flex flex-col h-full bg-background overflow-y-auto">
-      <TopAppBar storeName={settings.storeName} />
+      <TopAppBar storeName={store.name} />
       <div className="flex-1 p-container-padding flex flex-col gap-gutter">
         {/* Page Header */}
         <section className="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
         </section>
 
         {/* KPI Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mt-2">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-gutter mt-2">
           <MetricCard
             title="Today's Revenue"
             value={formatCurrency(metrics.todayRevenue)}

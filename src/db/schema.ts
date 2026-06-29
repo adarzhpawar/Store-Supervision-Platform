@@ -1,8 +1,22 @@
 import { pgTable, uuid, varchar, decimal, integer, timestamp, date, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export const stores = pgTable("stores", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id").notNull(),
+  name: varchar("name", { length: 255 }).notNull().default("My Store"),
+  address: text("address"),
+  phone: varchar("phone", { length: 50 }),
+  taxRate: decimal("tax_rate", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  invoicePrefix: varchar("invoice_prefix", { length: 20 }).notNull().default("INV-"),
+  accentColor: varchar("accent_color", { length: 50 }).notNull().default("red"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const workers = pgTable("workers", {
   id: uuid("id").primaryKey().defaultRandom(),
+  storeId: uuid("store_id").references(() => stores.id, { onDelete: "cascade" }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   phone: varchar("phone", { length: 50 }),
   email: varchar("email", { length: 255 }),
@@ -14,7 +28,8 @@ export const workers = pgTable("workers", {
 
 export const inventory = pgTable("inventory", {
   id: uuid("id").primaryKey().defaultRandom(),
-  sku: varchar("sku", { length: 100 }).unique().notNull(),
+  storeId: uuid("store_id").references(() => stores.id, { onDelete: "cascade" }).notNull(),
+  sku: varchar("sku", { length: 100 }).notNull(), // Removed unique() globally, uniqueness should be per store if anything, but keeping it simple
   name: varchar("name", { length: 255 }).notNull(),
   category: varchar("category", { length: 100 }),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
@@ -22,13 +37,16 @@ export const inventory = pgTable("inventory", {
   stock: integer("stock").notNull().default(0),
   minStock: integer("min_stock").notNull().default(0),
   barcode: varchar("barcode", { length: 100 }),
+  importedDate: date("imported_date"),
+  expiryDate: date("expiry_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const bills = pgTable("bills", {
   id: uuid("id").primaryKey().defaultRandom(),
-  invoiceNumber: varchar("invoice_number", { length: 100 }).unique().notNull(),
+  storeId: uuid("store_id").references(() => stores.id, { onDelete: "cascade" }).notNull(),
+  invoiceNumber: varchar("invoice_number", { length: 100 }).notNull(), // Removed unique() globally
   customerName: varchar("customer_name", { length: 255 }),
   subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
   discount: decimal("discount", { precision: 10, scale: 2 }).default("0.00"),
@@ -55,18 +73,33 @@ export const attendance = pgTable("attendance", {
   status: varchar("status", { length: 50 }).notNull(), // Present, Absent, Leave
 });
 
-export const settings = pgTable("settings", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  storeName: varchar("store_name", { length: 255 }).notNull().default("My Store"),
-  storeAddress: text("store_address"),
-  storePhone: varchar("store_phone", { length: 50 }),
-  taxRate: decimal("tax_rate", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  invoicePrefix: varchar("invoice_prefix", { length: 20 }).notNull().default("INV-"),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 // Relationships
-export const billsRelations = relations(bills, ({ many }) => ({
+export const storesRelations = relations(stores, ({ many }) => ({
+  workers: many(workers),
+  inventory: many(inventory),
+  bills: many(bills),
+}));
+
+export const workersRelations = relations(workers, ({ one, many }) => ({
+  store: one(stores, {
+    fields: [workers.storeId],
+    references: [stores.id],
+  }),
+  attendanceRecords: many(attendance),
+}));
+
+export const inventoryRelations = relations(inventory, ({ one }) => ({
+  store: one(stores, {
+    fields: [inventory.storeId],
+    references: [stores.id],
+  }),
+}));
+
+export const billsRelations = relations(bills, ({ one, many }) => ({
+  store: one(stores, {
+    fields: [bills.storeId],
+    references: [stores.id],
+  }),
   items: many(billItems),
 }));
 
@@ -79,10 +112,6 @@ export const billItemsRelations = relations(billItems, ({ one }) => ({
     fields: [billItems.productId],
     references: [inventory.id],
   }),
-}));
-
-export const workersRelations = relations(workers, ({ many }) => ({
-  attendanceRecords: many(attendance),
 }));
 
 export const attendanceRelations = relations(attendance, ({ one }) => ({

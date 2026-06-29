@@ -15,11 +15,11 @@ type RevenueChartProps = {
 export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <div className="premium-card flex flex-col gap-6 h-[400px]">
-      <div className="flex justify-between items-center">
-        <span className="font-mono text-label-mono uppercase tracking-widest text-secondary">
+      <div className="flex justify-between items-start sm:items-center gap-2 flex-wrap">
+        <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-secondary line-clamp-2">
           Monthly Revenue Trend
         </span>
-        <MoreHorizontal size={20} className="text-secondary hover:text-on-surface cursor-pointer" />
+        <MoreHorizontal size={20} className="text-secondary hover:text-on-surface cursor-pointer flex-shrink-0" />
       </div>
 
       <div className="flex-1 w-full h-full min-h-[220px]">
@@ -33,9 +33,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <defs>
-                <linearGradient id="coralGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ff4d4d" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#ff4d4d" stopOpacity={0} />
+                <linearGradient id="primaryGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis
@@ -62,10 +62,10 @@ export function RevenueChart({ data }: RevenueChartProps) {
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#ff4d4d"
+                stroke="var(--primary)"
                 strokeWidth={2}
                 fillOpacity={1}
-                fill="url(#coralGradient)"
+                fill="url(#primaryGradient)"
               />
             </AreaChart>
           </ResponsiveContainer>
