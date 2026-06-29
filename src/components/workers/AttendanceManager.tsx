@@ -56,8 +56,8 @@ export function AttendanceManager({ workers }: AttendanceManagerProps) {
         <h3 className="font-display text-title-md text-on-surface">Daily Attendance</h3>
         <Popover>
           <PopoverTrigger render={
-            <Button variant={"outline"} className={cn("w-[140px] justify-start text-left font-normal bg-background text-sm", !date && "text-muted-foreground")}>
-              <CalendarIcon className="mr-2 h-4 w-4" />
+            <Button variant={"outline"} className={cn("w-auto min-w-[160px] justify-start text-left font-normal bg-background text-sm", !date && "text-muted-foreground")}>
+              <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
               {date ? format(date, "PPP") : <span>Pick a date</span>}
             </Button>
           } />
