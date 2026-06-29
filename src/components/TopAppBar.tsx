@@ -34,10 +34,8 @@ export function TopAppBar({ storeName = "Main Store" }: TopAppBarProps) {
 
   // Close mobile menu on route change
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => setIsOpen(false), 0);
-    }
-  }, [pathname, isOpen]);
+    setIsOpen(false);
+  }, [pathname]);
 
   const formattedTime = currentTime
     ? currentTime.toLocaleString("en-US", {
