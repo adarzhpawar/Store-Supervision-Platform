@@ -46,6 +46,7 @@ Create a `.env` file in the root of your project and add your Supabase credentia
 ```env
 NEXT_PUBLIC_SUPABASE_URL="your-supabase-project-url"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+DATABASE_URL="postgresql://postgres.[your-project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres"
 ```
 
 ### 4. Initialize Database & Seed Data
